@@ -1,4 +1,4 @@
-package com.thelazypeople.scribbl
+package com.thelazypeople.scribbl.joinRoom
 
 import android.app.AlertDialog
 import android.content.Context
@@ -14,6 +14,9 @@ import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
+import com.thelazypeople.scribbl.GameActivity
+import com.thelazypeople.scribbl.R
+import com.thelazypeople.scribbl.model.Value
 import kotlinx.android.synthetic.main.activity_room_list.*
 
 class RoomListActivity : AppCompatActivity() {
@@ -43,7 +46,11 @@ class RoomListActivity : AppCompatActivity() {
                     roomList.add(room!!)
                 }
                 val adapter =
-                    JoinRoomAdapter(this@RoomListActivity, R.layout.list_item_row, roomList)
+                    JoinRoomAdapter(
+                        this@RoomListActivity,
+                        R.layout.list_item_row,
+                        roomList
+                    )
                 listView.adapter = adapter
             }
         })

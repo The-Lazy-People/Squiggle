@@ -1,4 +1,4 @@
-package com.thelazypeople.scribbl
+package com.thelazypeople.scribbl.model
 
 
 data class Value(

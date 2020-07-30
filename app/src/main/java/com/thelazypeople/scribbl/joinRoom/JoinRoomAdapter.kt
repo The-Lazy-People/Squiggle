@@ -1,4 +1,4 @@
-package com.thelazypeople.scribbl
+package com.thelazypeople.scribbl.joinRoom
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -7,6 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import com.thelazypeople.scribbl.R
+import com.thelazypeople.scribbl.model.Value
 
 class JoinRoomAdapter(var mCtx:Context , var resource:Int,var room_list:List<Value>)
     :ArrayAdapter<Value>( mCtx , resource , room_list ){
