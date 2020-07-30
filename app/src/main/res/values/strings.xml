@@ -15,10 +15,13 @@
     <string name="enterPassword">Enter Password</string>
     <string name="openRoomText">Open Room</string>
     <string name="NO">NO</string>
+    <string name="OPEN">OPEN ROOM</string>
+    <string name="CLOSED">CLOSED ROOM</string>
     <string name="RoomName">Room Name</string>
     <string name="roomCreated">Room Created!</string>
     <string name="fieldEmpty">No field should remain empty!</string>
 
     <string name="packageName">com.thelazypeople.scribbl</string>
     <string name="userId">UserID</string>
+    <string name="error">ERROR</string>
 </resources>

@@ -55,21 +55,29 @@ class MainActivity : AppCompatActivity() {
             if (roomName.text.isNullOrEmpty() || passwordSwitchButton.isChecked && closedRoomPassword.text.isNullOrEmpty()) {
                 Toast.makeText(this, getString(R.string.fieldEmpty), Toast.LENGTH_LONG).show()
             } else {
-                val userId : String? = prefs.getString(getString(R.string.userId), "")
-                if(userId != null) {
-                    roomReference.child(userId).child("roomname").setValue(roomName.text.toString())
+                val userId : String? = prefs.getString(getString(R.string.userId), "EMPTY")
+                if(userId != "EMPTY") {
+                    roomReference.child(userId.toString()).child("roomname").setValue(roomName.text.toString())
+                    roomReference.child(userId.toString()).child("reference").setValue(userId.toString())
                     if (passwordSwitchButton.isChecked) {
-                        roomReference.child(userId).child("password")
-                            .setValue(closedRoomPassword.text.toString().hashCode())
+                        roomReference.child(userId.toString()).child("password")
+                            .setValue(closedRoomPassword.text.toString().hashCode().toString())
                     } else {
-                        roomReference.child(userId).child("password").setValue(getString(R.string.NO))
+                        roomReference.child(userId.toString()).child("password").setValue(getString(R.string.NO))
                     }
-                    Toast.makeText(this, getString(R.string.roomCreated), Toast.LENGTH_SHORT).show()
-                    val intent = Intent(this, GameActivity::class.java)
-                    startActivity(intent)
+                    createAndJoinRoom(userId.toString())
+                }else{
+                    Toast.makeText(this, getString(R.string.error), Toast.LENGTH_SHORT).show()
                 }
             }
         }
 
+    }
+
+    private fun createAndJoinRoom(userId : String){
+        val intent = Intent(this, GameActivity::class.java)
+        intent.putExtra("reference", userId)
+        startActivity(intent)
+        Toast.makeText(this, "Room created", Toast.LENGTH_SHORT).show()
     }
 }

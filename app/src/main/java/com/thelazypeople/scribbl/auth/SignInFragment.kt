@@ -2,7 +2,6 @@ package com.thelazypeople.scribbl.auth
 
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.LayoutInflater
@@ -26,8 +25,6 @@ class SignInFragment : Fragment() {
     lateinit var frameView:FrameLayout
     private val auth= Firebase.auth
 
-    private lateinit var prefs: SharedPreferences
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -39,10 +36,6 @@ class SignInFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        prefs = context!!.getSharedPreferences(
-            getString(R.string.packageName), Context.MODE_PRIVATE
-        )
 
        sign_in_signup.setOnClickListener {
            activity?.supportFragmentManager?.beginTransaction()
@@ -66,7 +59,6 @@ class SignInFragment : Fragment() {
                         if (task.isSuccessful) {
                             startActivity(Intent(context, MainActivity::class.java))
                             activity?.finish()
-                            prefs.edit().putString(getString(R.string.userId), FirebaseAuth.getInstance().currentUser?.uid.toString()).apply();
                         } else {
                             // If sign in fails, display a message to the user.
                             Toast.makeText(
