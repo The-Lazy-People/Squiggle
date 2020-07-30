@@ -3,6 +3,7 @@ package com.thelazypeople.scribbl
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.TextView
 import android.widget.Toast
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
@@ -11,6 +12,7 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
+import com.thelazypeople.scribbl.model.ChatText
 import kotlinx.android.synthetic.main.activity_game.*
 import java.lang.ref.Reference
 
@@ -36,8 +38,8 @@ class GameActivity : AppCompatActivity() {
 
             childEventListener = object : ChildEventListener {
                 override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-                    val textValue = snapshot.getValue<String>()
-                    downloadText += textValue + "\n"
+                    val textObj = snapshot.getValue<ChatText>()
+                    downloadText += textObj?.text + "\n"
                     textHolder.text = downloadText
                 }
 
@@ -66,7 +68,7 @@ class GameActivity : AppCompatActivity() {
                 Toast.makeText(this, "Empty text", Toast.LENGTH_SHORT).show()
             } else {
                 if(reference != null){
-                    postReference.child("text").setValue(editText.text.toString().trim())
+                    uploadToDatabase(editText.text.toString().trim())
                     editText.text.clear()
                 }else{
                     Toast.makeText(this, getString(R.string.error), Toast.LENGTH_SHORT).show()
@@ -74,5 +76,10 @@ class GameActivity : AppCompatActivity() {
             }
         }
 
+    }
+
+    private fun uploadToDatabase(cur_text: String) {
+        val textObj = ChatText(cur_text)
+        postReference.push().setValue(textObj)
     }
 }
