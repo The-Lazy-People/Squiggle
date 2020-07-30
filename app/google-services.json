@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "883778103322",
+    "firebase_url": "https://scribbl-f1428.firebaseio.com",
+    "project_id": "scribbl-f1428",
+    "storage_bucket": "scribbl-f1428.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:883778103322:android:470080287d3a79d13309a3",
+        "android_client_info": {
+          "package_name": "com.thelazypeople.scribbl"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "883778103322-te2ga71a5oj45edp6brfltmh96airfmm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQK6vdh6og9j3OMpUjfZFo1D_M76GkknU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "883778103322-te2ga71a5oj45edp6brfltmh96airfmm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
