@@ -32,18 +32,28 @@ class GameActivity : AppCompatActivity() {
     private lateinit var roomReference: DatabaseReference
     private lateinit var childEventListenerForChat: ChildEventListener
     private lateinit var childEventListenerForPlayers: ChildEventListener
-
+    private lateinit var childEventListenerForGame: ChildEventListener
     private var reference: String? = ""
     private var otherUserName:String?=""
     private var downloadText: String = ""
     private var playersList= mutableListOf<playerInfo>()
     private var chatsDisplay = mutableListOf<ChatText>()
     var playerCount:Long=0
+    private lateinit var postRef:DatabaseReference
     var baseCount:Long=1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
+
+        val paintView=PaintView(this)
+        main.addView(paintView)
+        btn1.setOnClickListener {
+
+            //Toast.makeText(this,"CLICK ME", Toast.LENGTH_LONG).show()
+        }
+        paintView.end(0f,0f)
+
         prefs = this.getSharedPreferences(
             getString(R.string.packageName), Context.MODE_PRIVATE
         )
@@ -60,21 +70,20 @@ class GameActivity : AppCompatActivity() {
         database = Firebase.database.reference
         if (reference != null) {
             postReference = database.child("games").child(reference.toString()).child("Chats")
-
+            postRef=database.child("data")
             childEventListenerForChat = object : ChildEventListener {
                 override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                     val textObj = snapshot.getValue<ChatText>()
 
                     otherUserName=textObj?.userName
                     downloadText +=otherUserName+" : "+textObj?.text + "\n"
-                    textHolder.text =downloadText
+                    //textHolder.text =downloadText
 
                     otherUserName?.let { textObj?.text?.let { it1 -> ChatText(it, it1) } }?.let { chatsDisplay.add(it) }
                     chatAdapter.notifyDataSetChanged()
                     chats_recycler.scrollToPosition(chatsDisplay.size-1)
 
                 }
-
                 override fun onCancelled(error: DatabaseError) {
                     // not needed
                 }
@@ -92,6 +101,40 @@ class GameActivity : AppCompatActivity() {
                 }
 
             }
+
+            childEventListenerForGame = object : ChildEventListener{
+
+                override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                    val info = snapshot.getValue<Information>()
+                    Log.i("DOWNLOADORNOT",info!!.type.toString()+" "+info.pointX.toString()+" "+info.pointY+toString())
+                    if(info?.type == 0){
+                        paintView.start(info.pointX , info.pointY)
+                    }else if(info?.type == 2){
+                        paintView.co(info!!.pointX , info.pointY)
+                    }
+                    else{
+                        paintView.end(info!!.pointX , info.pointY)
+                    }
+                }
+                override fun onCancelled(error: DatabaseError) {
+                    // not needed
+                }
+
+                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+                    // not needed
+                }
+
+                override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+                    // not needed
+                }
+
+                override fun onChildRemoved(snapshot: DataSnapshot) {
+                    // not needed
+                }
+
+            }
+
+            postRef.addChildEventListener(childEventListenerForGame)
             postReference.addChildEventListener(childEventListenerForChat)
 
             playerReference = database.child("rooms").child(reference.toString()).child("Players")
