@@ -26,6 +26,7 @@ class RoomListActivity : AppCompatActivity() {
     private lateinit var roomReference: DatabaseReference
     private lateinit var roomList: ArrayList<roomInfo>
     private lateinit var prefs: SharedPreferences
+    private lateinit var childEventListenerForRooms: ChildEventListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,27 +39,42 @@ class RoomListActivity : AppCompatActivity() {
         )
 
         roomList = ArrayList<roomInfo>()
-        roomReference.addListenerForSingleValueEvent(object : ValueEventListener {
+        val adapter =
+            JoinRoomAdapter(
+                this@RoomListActivity,
+                R.layout.list_item_row,
+                roomList
+            )
+        listView.adapter = adapter
+
+        childEventListenerForRooms = object : ChildEventListener {
+            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                val room = snapshot.getValue<roomInfo>()
+                roomList.add(room!!)
+                adapter.notifyDataSetChanged()
+            }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.i("", "")
+                // not needed
             }
 
-            override fun onDataChange(snapshot: DataSnapshot) {
-
-                for (ds in snapshot.children) {
-                    val room = ds.getValue<roomInfo>()
-                    roomList.add(room!!)
-                }
-                val adapter =
-                    JoinRoomAdapter(
-                        this@RoomListActivity,
-                        R.layout.list_item_row,
-                        roomList
-                    )
-                listView.adapter = adapter
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+                // not needed
             }
-        })
+
+            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+                // not needed
+
+            }
+
+            override fun onChildRemoved(snapshot: DataSnapshot) {
+                val room = snapshot.getValue<roomInfo>()
+                roomList.remove(room!!)
+                adapter.notifyDataSetChanged()
+            }
+
+        }
+        roomReference.addChildEventListener(childEventListenerForRooms)
 
         listView.setOnItemClickListener { parent, view, position, id ->
             if (roomList[position].password == getString(R.string.NO)) {

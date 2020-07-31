@@ -32,7 +32,7 @@ class GameActivity : AppCompatActivity() {
     private lateinit var roomReference: DatabaseReference
     private lateinit var childEventListenerForChat: ChildEventListener
     private lateinit var childEventListenerForPlayers: ChildEventListener
-    private lateinit var childEventListenerForRoom: ChildEventListener
+
     private var reference: String? = ""
     private var otherUserName:String?=""
     private var downloadText: String = ""
