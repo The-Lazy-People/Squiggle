@@ -29,7 +29,7 @@ class RoomListActivity : AppCompatActivity() {
         setContentView(R.layout.activity_room_list)
 
         database = Firebase.database
-        roomReference = database.reference.child("room")
+        roomReference = database.reference.child("rooms")
 
         roomList = ArrayList<Value>()
 
@@ -83,7 +83,7 @@ class RoomListActivity : AppCompatActivity() {
                 if (passEntered.isEmpty()) {
                     Toast.makeText(this, "No password found", Toast.LENGTH_SHORT).show()
                 } else {
-                    if (passEntered.hashCode().toString() == roomList[position].password) {
+                    if (passEntered == roomList[position].password) {
                         joinRoom(position)
                     }else{
                         Toast.makeText(this, "Password incorrect", Toast.LENGTH_SHORT).show()

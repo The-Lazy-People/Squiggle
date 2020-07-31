@@ -53,8 +53,8 @@ class SignUpFragment : Fragment() {
             if(TextUtils.isEmpty(email)){
                 email_register.error = "Please enter the Email"
             }
-           else if(TextUtils.isEmpty(password) || password.length < 8){
-                pass_register.error = "Length greater than 8"
+           else if(TextUtils.isEmpty(password) || password.length < 5){
+                pass_register.error = "Length greater than 5"
             }
             else {
                 register_btn.isEnabled = false
@@ -64,6 +64,7 @@ class SignUpFragment : Fragment() {
                         if (task.isSuccessful) {
                             // Sign in success, update UI with the signed-in user's information
                             prefs.edit().putString(getString(R.string.userId), FirebaseAuth.getInstance().currentUser?.uid.toString()).apply();
+                            prefs.edit().putString(getString(R.string.userName), name_register.text.toString().trim()).apply();
                             startActivity(Intent(context, MainActivity::class.java))
                             activity?.finish()
                         } else {

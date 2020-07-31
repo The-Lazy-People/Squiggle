@@ -14,6 +14,7 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.thelazypeople.scribbl.auth.AuthActivity
 import com.thelazypeople.scribbl.joinRoom.RoomListActivity
+import com.thelazypeople.scribbl.model.playerInfo
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -21,6 +22,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var prefs: SharedPreferences
     private lateinit var database: FirebaseDatabase
     private lateinit var roomReference: DatabaseReference
+    private lateinit var playerRefrence: DatabaseReference
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -32,11 +34,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         database = Firebase.database
-        roomReference = database.reference.child("room")
+        roomReference = database.reference.child("rooms")
         prefs = this.getSharedPreferences(
             getString(R.string.packageName), Context.MODE_PRIVATE
         )
-
+        playerRefrence=database.reference.child("players")
+        var playerInfoKeeper=playerInfo(prefs.getString(getString(R.string.userName), "EMPTY"),prefs.getString(getString(R.string.userId), "EMPTY"))
+        playerRefrence.child(prefs.getString(getString(R.string.userId), "EMPTY")!!).setValue(playerInfoKeeper)
         passwordSwitchButton.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 closedRoomPassword.visibility = View.VISIBLE
@@ -57,12 +61,14 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, getString(R.string.fieldEmpty), Toast.LENGTH_LONG).show()
             } else {
                 val userId : String? = prefs.getString(getString(R.string.userId), "EMPTY")
+                val userName : String? = prefs.getString(getString(R.string.userName), "EMPTY")
                 if(userId != "EMPTY") {
                     roomReference.child(userId.toString()).child("roomname").setValue(roomName.text.toString())
                     roomReference.child(userId.toString()).child("reference").setValue(userId.toString())
+                    roomReference.child(userId.toString()).child("Players").child(userId.toString()).setValue(playerInfo(userName,userId))
                     if (passwordSwitchButton.isChecked) {
                         roomReference.child(userId.toString()).child("password")
-                            .setValue(closedRoomPassword.text.toString().hashCode().toString())
+                            .setValue(closedRoomPassword.text.toString())
                     } else {
                         roomReference.child(userId.toString()).child("password").setValue(getString(R.string.NO))
                     }

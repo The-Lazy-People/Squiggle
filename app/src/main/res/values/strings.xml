@@ -24,4 +24,5 @@
     <string name="packageName">com.thelazypeople.scribbl</string>
     <string name="userId">UserID</string>
     <string name="error">ERROR</string>
+    <string name="userName">userName</string>
 </resources>

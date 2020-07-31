@@ -48,8 +48,8 @@ class SignInFragment : Fragment() {
             if(TextUtils.isEmpty(email)){
                 email_login.error = "Please enter the Email"
             }
-            else if(TextUtils.isEmpty(password) || password.length < 8){
-                pass_login.error = "Length greater than 8"
+            else if(TextUtils.isEmpty(password) || password.length < 5){
+                pass_login.error = "Length greater than 5"
             }
             else {
                 login_btn.isEnabled = false
