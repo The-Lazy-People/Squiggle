@@ -25,4 +25,5 @@
     <string name="userId">UserID</string>
     <string name="error">ERROR</string>
     <string name="userName">userName</string>
+    <string name="userNotFoundError">User ID not found Error!</string>
 </resources>

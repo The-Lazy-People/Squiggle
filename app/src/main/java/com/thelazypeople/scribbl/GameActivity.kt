@@ -54,7 +54,7 @@ class GameActivity : AppCompatActivity() {
 
         database = Firebase.database.reference
         if (reference != null) {
-            postReference = database.child("rooms").child(reference.toString()).child("Chats")
+            postReference = database.child("games").child(reference.toString()).child("Chats")
 
             childEventListenerForChat = object : ChildEventListener {
                 override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
@@ -89,7 +89,6 @@ class GameActivity : AppCompatActivity() {
             }
             postReference.addChildEventListener(childEventListenerForChat)
 
-
             playerReference = database.child("rooms").child(reference.toString()).child("Players")
 
             childEventListenerForPlayers = object : ChildEventListener {
@@ -113,7 +112,10 @@ class GameActivity : AppCompatActivity() {
                 }
 
                 override fun onChildRemoved(snapshot: DataSnapshot) {
-                    // not needed
+                    val playerInfoObj = snapshot.getValue<playerInfo>()
+                    if(playerInfoObj!=null) {
+                        playersList.remove(playerInfoObj)
+                    }
                 }
 
             }
@@ -136,13 +138,19 @@ class GameActivity : AppCompatActivity() {
             }
         }
 
-
-
     }
 
     private fun uploadToDatabase(cur_text: String) {
         val userName : String? = prefs.getString(getString(R.string.userName), "EMPTY")
         val textObj = ChatText(userName!!,cur_text)
         postReference.push().setValue(textObj)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        val userId : String? = prefs.getString(getString(R.string.userId), "EMPTY")
+        if(userId != "EMPTY"){
+            database.child("rooms").child(reference.toString()).child("Players").child(userId!!).removeValue()
+        }
     }
 }

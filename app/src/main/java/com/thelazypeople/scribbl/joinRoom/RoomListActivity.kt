@@ -3,6 +3,7 @@ package com.thelazypeople.scribbl.joinRoom
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -16,13 +17,15 @@ import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import com.thelazypeople.scribbl.GameActivity
 import com.thelazypeople.scribbl.R
-import com.thelazypeople.scribbl.model.Value
+import com.thelazypeople.scribbl.model.playerInfo
+import com.thelazypeople.scribbl.model.roomInfo
 import kotlinx.android.synthetic.main.activity_room_list.*
 
 class RoomListActivity : AppCompatActivity() {
     private lateinit var database: FirebaseDatabase
     private lateinit var roomReference: DatabaseReference
-    private lateinit var roomList: ArrayList<Value>
+    private lateinit var roomList: ArrayList<roomInfo>
+    private lateinit var prefs: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,9 +33,11 @@ class RoomListActivity : AppCompatActivity() {
 
         database = Firebase.database
         roomReference = database.reference.child("rooms")
+        prefs = this.getSharedPreferences(
+            getString(R.string.packageName), Context.MODE_PRIVATE
+        )
 
-        roomList = ArrayList<Value>()
-
+        roomList = ArrayList<roomInfo>()
         roomReference.addListenerForSingleValueEvent(object : ValueEventListener {
 
             override fun onCancelled(error: DatabaseError) {
@@ -42,7 +47,7 @@ class RoomListActivity : AppCompatActivity() {
             override fun onDataChange(snapshot: DataSnapshot) {
 
                 for (ds in snapshot.children) {
-                    val room = ds.getValue<Value>()
+                    val room = ds.getValue<roomInfo>()
                     roomList.add(room!!)
                 }
                 val adapter =
@@ -97,9 +102,18 @@ class RoomListActivity : AppCompatActivity() {
     }
 
     private fun joinRoom(position: Int){
-        val intent = Intent(this, GameActivity::class.java)
-        intent.putExtra("reference", roomList[position].reference)
-        startActivity(intent)
-        Toast.makeText(this, "Room joined", Toast.LENGTH_SHORT).show()
+        val userId : String? = prefs.getString(getString(R.string.userId), "EMPTY")
+        val userName : String? = prefs.getString(getString(R.string.userName), "EMPTY")
+        if(userId != "EMPTY") {
+            roomReference.child(roomList[position].reference).child("Players").child(userId.toString()).setValue(
+                playerInfo(userName,userId)
+            )
+            val intent = Intent(this, GameActivity::class.java)
+            intent.putExtra("reference", roomList[position].reference)
+            startActivity(intent)
+            Toast.makeText(this, "Room joined", Toast.LENGTH_SHORT).show()
+        }else{
+            Toast.makeText(this, getString(R.string.userNotFoundError), Toast.LENGTH_SHORT).show()
+        }
     }
 }

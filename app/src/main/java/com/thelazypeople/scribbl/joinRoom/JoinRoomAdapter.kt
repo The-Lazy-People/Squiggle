@@ -8,16 +8,16 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import com.thelazypeople.scribbl.R
-import com.thelazypeople.scribbl.model.Value
+import com.thelazypeople.scribbl.model.roomInfo
 
-class JoinRoomAdapter(var mCtx:Context , var resource:Int,var room_list:List<Value>)
-    :ArrayAdapter<Value>( mCtx , resource , room_list ){
+class JoinRoomAdapter(var mCtx:Context , var resource:Int,var room_list:List<roomInfo>)
+    :ArrayAdapter<roomInfo>( mCtx , resource , room_list ){
 
     @SuppressLint("ViewHolder")
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val inflater = LayoutInflater.from(mCtx)
         val rowView = inflater.inflate(R.layout.list_item_row, null, true)
-        val roomDesc : Value = room_list[position]
+        val roomDesc : roomInfo = room_list[position]
 
         val roomNameView : TextView = rowView.findViewById(R.id.roomName)
         val state : TextView = rowView.findViewById(R.id.state)

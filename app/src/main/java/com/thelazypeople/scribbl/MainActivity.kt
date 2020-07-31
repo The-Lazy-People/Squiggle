@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var prefs: SharedPreferences
     private lateinit var database: FirebaseDatabase
     private lateinit var roomReference: DatabaseReference
-    private lateinit var playerRefrence: DatabaseReference
+    private lateinit var playerReference: DatabaseReference
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -38,9 +38,9 @@ class MainActivity : AppCompatActivity() {
         prefs = this.getSharedPreferences(
             getString(R.string.packageName), Context.MODE_PRIVATE
         )
-        playerRefrence=database.reference.child("players")
-        var playerInfoKeeper=playerInfo(prefs.getString(getString(R.string.userName), "EMPTY"),prefs.getString(getString(R.string.userId), "EMPTY"))
-        playerRefrence.child(prefs.getString(getString(R.string.userId), "EMPTY")!!).setValue(playerInfoKeeper)
+        playerReference=database.reference.child("players")
+        val playerInfoKeeper=playerInfo(prefs.getString(getString(R.string.userName), "EMPTY"),prefs.getString(getString(R.string.userId), "EMPTY"))
+        playerReference.child(prefs.getString(getString(R.string.userId), "EMPTY")!!).setValue(playerInfoKeeper)
         passwordSwitchButton.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 closedRoomPassword.visibility = View.VISIBLE
@@ -74,7 +74,7 @@ class MainActivity : AppCompatActivity() {
                     }
                     createAndJoinRoom(userId.toString())
                 }else{
-                    Toast.makeText(this, getString(R.string.error), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.userNotFoundError), Toast.LENGTH_SHORT).show()
                 }
             }
         }
