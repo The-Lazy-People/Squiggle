@@ -87,4 +87,20 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent)
         Toast.makeText(this, "Room created", Toast.LENGTH_SHORT).show()
     }
+    override fun onPause() {
+        super.onPause()
+        val userId: String? = prefs.getString(getString(R.string.userId), "EMPTY")
+        if (userId != "EMPTY") {
+            database.reference.child("players").child(userId.toString()).removeValue()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val userId: String? = prefs.getString(getString(R.string.userId), "EMPTY")
+        val useName: String? = prefs.getString(getString(R.string.userName), "EMPTY")
+        if (userId != "EMPTY") {
+            database.reference.child("players").child(userId.toString()).setValue(playerInfo(useName,userId))
+        }
+    }
 }

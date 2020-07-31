@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -28,13 +29,17 @@ class GameActivity : AppCompatActivity() {
     private lateinit var database: DatabaseReference
     private lateinit var postReference: DatabaseReference
     private lateinit var playerReference: DatabaseReference
+    private lateinit var roomReference: DatabaseReference
     private lateinit var childEventListenerForChat: ChildEventListener
     private lateinit var childEventListenerForPlayers: ChildEventListener
+    private lateinit var childEventListenerForRoom: ChildEventListener
     private var reference: String? = ""
     private var otherUserName:String?=""
     private var downloadText: String = ""
     private var playersList= mutableListOf<playerInfo>()
     private var chatsDisplay = mutableListOf<ChatText>()
+    var playerCount:Long=0
+    var baseCount:Long=1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,6 +102,7 @@ class GameActivity : AppCompatActivity() {
                     if(playerInfoObj!=null) {
                         playersList.add(playerInfoObj)
                     }
+                    playerCount++;
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -109,6 +115,7 @@ class GameActivity : AppCompatActivity() {
 
                 override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
                     // not needed
+
                 }
 
                 override fun onChildRemoved(snapshot: DataSnapshot) {
@@ -116,10 +123,12 @@ class GameActivity : AppCompatActivity() {
                     if(playerInfoObj!=null) {
                         playersList.remove(playerInfoObj)
                     }
+                    playerCount--
                 }
 
             }
             playerReference.addChildEventListener(childEventListenerForPlayers)
+
         }
 
         button.setOnClickListener {
@@ -146,11 +155,36 @@ class GameActivity : AppCompatActivity() {
         postReference.push().setValue(textObj)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        val userId : String? = prefs.getString(getString(R.string.userId), "EMPTY")
-        if(userId != "EMPTY"){
-            database.child("rooms").child(reference.toString()).child("Players").child(userId!!).removeValue()
+    override fun onPause() {
+        super.onPause()
+        val userId: String? = prefs.getString(getString(R.string.userId), "EMPTY")
+        Log.i("counter1",playerCount.toString())
+        if (userId != "EMPTY") {
+            database.child("rooms").child(reference.toString()).child("Players").child(userId!!)
+                .removeValue()
+            database.child("players").child(userId.toString()).removeValue()
         }
+        Log.i("counter2",playerCount.toString())
+        if(playerCount==baseCount){
+            database.child("rooms").child(reference.toString()).removeValue()
+            database.child("games").child(reference.toString()).removeValue()
+        }
+        Log.i("counter3",playerCount.toString())
+
+    }
+    override fun onResume() {
+        super.onResume()
+        val userId: String? = prefs.getString(getString(R.string.userId), "EMPTY")
+        val useName: String? = prefs.getString(getString(R.string.userName), "EMPTY")
+        if (userId != "EMPTY") {
+            database.child("rooms").child(reference.toString()).child("Players").child(userId.toString()).setValue(playerInfo(useName,userId))
+            database.child("players").child(userId.toString()).setValue(playerInfo(useName,userId))
+        }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
     }
 }
