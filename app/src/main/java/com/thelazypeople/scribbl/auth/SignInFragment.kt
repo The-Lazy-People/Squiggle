@@ -18,6 +18,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.thelazypeople.scribbl.MainActivity
 import com.thelazypeople.scribbl.R
+import kotlinx.android.synthetic.main.activity_game.*
 import kotlinx.android.synthetic.main.fragment_sign_in.*
 
 
@@ -47,10 +48,20 @@ class SignInFragment : Fragment() {
         prefs = context!!.getSharedPreferences(
             getString(R.string.packageName), Context.MODE_PRIVATE
         )
+
+        val userName:String? = prefs.getString(getString(R.string.userName), "EMPTY")
+
+        if(userName != "EMPTY"){
+            name_login.setText(userName)
+        }
+
         login_btn.setOnClickListener {
             val email = email_login.text.toString().trim()
             val password = pass_login.text.toString().trim()
-            if(TextUtils.isEmpty(email)){
+            if(TextUtils.isEmpty(name_login.text.toString().trim())){
+                name_login.error = "Please enter the NickName"
+            }
+            else if(TextUtils.isEmpty(email)){
                 email_login.error = "Please enter the Email"
             }
             else if(TextUtils.isEmpty(password) || password.length < 5){
@@ -62,6 +73,7 @@ class SignInFragment : Fragment() {
                 auth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener { task: Task<AuthResult> ->
                         if (task.isSuccessful) {
+                            prefs.edit().putString(getString(R.string.userName), name_login.text.toString().trim()).apply()
                             prefs.edit().putString(getString(R.string.userId), FirebaseAuth.getInstance().currentUser?.uid.toString()).apply()
                             startActivity(Intent(context, MainActivity::class.java))
                             activity?.finish()

@@ -57,8 +57,6 @@ class PaintView(context: Context?): android.view.View(context) {
         val pointX = event.x
         val pointY = event.y
 
-
-
         when(event.action)
         {
             MotionEvent.ACTION_DOWN -> {

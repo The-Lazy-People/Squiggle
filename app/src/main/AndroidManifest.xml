@@ -11,7 +11,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".RoomActivity"></activity>
+        <activity android:name=".WaitingActivity">
+
+        </activity>
         <activity
             android:name=".joinRoom.RoomListActivity"
             android:screenOrientation="portrait" />
@@ -30,6 +32,10 @@
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait" />
+
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
     </application>
 
 </manifest>
