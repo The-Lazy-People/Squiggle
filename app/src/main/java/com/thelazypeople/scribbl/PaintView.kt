@@ -3,20 +3,17 @@ package com.thelazypeople.scribbl
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.Insets.add
 import android.graphics.Paint
 import android.graphics.Path
 import android.view.MotionEvent
-import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-import android.widget.Button
 import android.widget.LinearLayout
-import androidx.core.view.OneShotPreDrawListener.add
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.thelazypeople.scribbl.model.Information
 
 var brush = Paint()
 var path = Path()
@@ -27,6 +24,7 @@ class PaintView(context: Context?): android.view.View(context) {
     private lateinit var postReference: DatabaseReference
     var canvasHeight=1
     var canvasWidth=1
+    var reference:String?=""
     init{
         brush.isAntiAlias =true
         brush.setColor(Color.BLACK)
@@ -38,21 +36,27 @@ class PaintView(context: Context?): android.view.View(context) {
     public fun start(x:Float,y:Float)
     {
         path.moveTo(x*canvasWidth, y*canvasHeight);
+        postInvalidate()
     }
     public fun co(x:Float,y:Float)
     {
         path.lineTo(x*canvasWidth, y*canvasHeight)
+        postInvalidate()
     }
     public fun end(x:Float,y:Float)
     {
         path.lineTo(x*canvasWidth, y*canvasHeight)
         postInvalidate()
     }
+    public fun getref(ref:String?){
+        reference=ref
+        database = Firebase.database
+        postReference = database.reference.child("drawingData").child(reference!!)
+    }
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val pointX = event.x
         val pointY = event.y
-        database = Firebase.database
-        postReference = database.reference.child("data")
+
 
 
         when(event.action)
@@ -85,7 +89,8 @@ class PaintView(context: Context?): android.view.View(context) {
     }
 
     private fun uploadToDatabase(pointX:Float, pointY:Float , type: Int) {
-        val info = Information(pointX, pointY, type)
+        val info =
+            Information(pointX, pointY, type)
         postReference.push().setValue(info)
     }
 }

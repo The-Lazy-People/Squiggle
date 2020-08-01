@@ -6,8 +6,6 @@ import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.LinearLayout
-import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.database.ChildEventListener
@@ -19,10 +17,10 @@ import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import com.thelazypeople.scribbl.adapters.ChatAdapter
 import com.thelazypeople.scribbl.model.ChatText
+import com.thelazypeople.scribbl.model.Information
 import com.thelazypeople.scribbl.model.playerInfo
 import kotlinx.android.synthetic.main.activity_game.*
 import kotlinx.android.synthetic.main.chats_preview.*
-import java.lang.ref.Reference
 
 class GameActivity : AppCompatActivity() {
     private lateinit var prefs: SharedPreferences
@@ -33,7 +31,7 @@ class GameActivity : AppCompatActivity() {
     private lateinit var childEventListenerForChat: ChildEventListener
     private lateinit var childEventListenerForPlayers: ChildEventListener
     private lateinit var childEventListenerForGame: ChildEventListener
-    private var reference: String? = ""
+    public var reference: String? = ""
     private var otherUserName:String?=""
     private var downloadText: String = ""
     private var playersList= mutableListOf<playerInfo>()
@@ -52,13 +50,15 @@ class GameActivity : AppCompatActivity() {
 
             //Toast.makeText(this,"CLICK ME", Toast.LENGTH_LONG).show()
         }
-        paintView.end(0f,0f)
+
 
         prefs = this.getSharedPreferences(
             getString(R.string.packageName), Context.MODE_PRIVATE
         )
         val intent: Intent = intent
         reference = intent.getStringExtra("reference")
+        paintView.end(0f,0f)
+        paintView.getref(reference)
 
         val chatAdapter = ChatAdapter(chats = chatsDisplay)
         val layoutManager = LinearLayoutManager(this)
@@ -70,7 +70,7 @@ class GameActivity : AppCompatActivity() {
         database = Firebase.database.reference
         if (reference != null) {
             postReference = database.child("games").child(reference.toString()).child("Chats")
-            postRef=database.child("data")
+            postRef=database.child("drawingData").child(reference.toString())
             childEventListenerForChat = object : ChildEventListener {
                 override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                     val textObj = snapshot.getValue<ChatText>()
@@ -208,9 +208,10 @@ class GameActivity : AppCompatActivity() {
             database.child("players").child(userId.toString()).removeValue()
         }
         Log.i("counter2",playerCount.toString())
-        if(playerCount==baseCount){
+        if(playerCount<=baseCount){
             database.child("rooms").child(reference.toString()).removeValue()
             database.child("games").child(reference.toString()).removeValue()
+            database.child("drawingData").child(reference.toString()).removeValue()
         }
         Log.i("counter3",playerCount.toString())
 
