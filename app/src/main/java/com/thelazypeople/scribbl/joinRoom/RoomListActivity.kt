@@ -17,6 +17,7 @@ import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import com.thelazypeople.scribbl.GameActivity
 import com.thelazypeople.scribbl.R
+import com.thelazypeople.scribbl.WaitingActivity
 import com.thelazypeople.scribbl.model.playerInfo
 import com.thelazypeople.scribbl.model.roomInfo
 import kotlinx.android.synthetic.main.activity_room_list.*
@@ -124,8 +125,9 @@ class RoomListActivity : AppCompatActivity() {
             roomReference.child(roomList[position].reference).child("Players").child(userId.toString()).setValue(
                 playerInfo(userName,userId)
             )
-            val intent = Intent(this, GameActivity::class.java)
+            val intent = Intent(this, WaitingActivity::class.java)
             intent.putExtra("reference", roomList[position].reference)
+            intent.putExtra("host",0)
             startActivity(intent)
             Toast.makeText(this, "Room joined", Toast.LENGTH_SHORT).show()
         }else{

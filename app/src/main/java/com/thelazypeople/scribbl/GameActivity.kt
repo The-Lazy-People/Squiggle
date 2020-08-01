@@ -214,6 +214,8 @@ class GameActivity : AppCompatActivity() {
             database.child("drawingData").child(reference.toString()).removeValue()
         }
         Log.i("counter3",playerCount.toString())
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
 
     }
     override fun onResume() {

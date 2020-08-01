@@ -63,9 +63,11 @@ class MainActivity : AppCompatActivity() {
                 val userId : String? = prefs.getString(getString(R.string.userId), "EMPTY")
                 val userName : String? = prefs.getString(getString(R.string.userName), "EMPTY")
                 if(userId != "EMPTY") {
+                    roomReference.child(userId.toString()).child("gamestarted").setValue(0)
                     roomReference.child(userId.toString()).child("roomname").setValue(roomName.text.toString())
                     roomReference.child(userId.toString()).child("reference").setValue(userId.toString())
                     roomReference.child(userId.toString()).child("Players").child(userId.toString()).setValue(playerInfo(userName,userId))
+                    database.reference.child("drawingData").child(userId.toString()).removeValue()
                     if (passwordSwitchButton.isChecked) {
                         roomReference.child(userId.toString()).child("password")
                             .setValue(closedRoomPassword.text.toString())
@@ -82,8 +84,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun createAndJoinRoom(userId : String){
-        val intent = Intent(this, GameActivity::class.java)
+        val intent = Intent(this, WaitingActivity::class.java)
         intent.putExtra("reference", userId)
+        intent.putExtra("host",1)
         startActivity(intent)
         Toast.makeText(this, "Room created", Toast.LENGTH_SHORT).show()
     }
