@@ -20,6 +20,7 @@ var path = Path()
 lateinit var params:LinearLayout.LayoutParams
 
 class PaintView(context: Context?): android.view.View(context) {
+
     private lateinit var database: FirebaseDatabase
     private lateinit var postReference: DatabaseReference
     var canvasHeight=1

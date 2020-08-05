@@ -49,11 +49,12 @@ class GameActivity : AppCompatActivity() {
         val paintView=PaintView(this)
         main.addView(paintView)
         paintView.clear()
-        btn1.setOnClickListener {
+       paint_brush.setOnClickListener {
 
-            //Toast.makeText(this,"CLICK ME", Toast.LENGTH_LONG).show()
+       }
+        eraser.setOnClickListener {
+
         }
-
 
         prefs = this.getSharedPreferences(
             getString(R.string.packageName), Context.MODE_PRIVATE

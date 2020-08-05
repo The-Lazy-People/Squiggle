@@ -7,40 +7,32 @@
     android:layout_height="match_parent">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:layout_width="match_parent"
+        android:layout_width="422dp"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toTopOf="@+id/editText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/eraser">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
+            <FrameLayout
                 android:id="@+id/main"
-                android:orientation="vertical"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="#FFFFFF"
-                tools:context=".MainActivity">
-
-                <Button
-                    android:id="@+id/btn1"
-                    android:layout_marginTop="0dp"
-                    android:background="@drawable/ic_baseline_brush_24"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-
-            </FrameLayout>
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:context=".MainActivity" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <include layout="@layout/chats_preview" />
+                <include layout="@layout/chats_preview" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
@@ -72,5 +64,25 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/editText"
         app:layout_constraintTop_toTopOf="@+id/editText" />
+
+    <ImageButton
+        android:id="@+id/paint_brush"
+        android:layout_width="77dp"
+        android:layout_height="52dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/paint_brush" />
+
+    <ImageButton
+        android:id="@+id/eraser"
+        android:layout_width="80dp"
+        android:layout_height="59dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toEndOf="@+id/paint_brush"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/rubber" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
