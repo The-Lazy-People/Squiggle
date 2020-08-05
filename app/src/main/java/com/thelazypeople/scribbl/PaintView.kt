@@ -25,34 +25,45 @@ class PaintView(context: Context?): android.view.View(context) {
     var canvasHeight=1
     var canvasWidth=1
     var reference:String?=""
+
     init{
         brush.isAntiAlias =true
-        brush.setColor(Color.BLACK)
+        brush.color = Color.BLACK
         brush.style=Paint.Style.STROKE
         brush.strokeJoin=Paint.Join.ROUND
         brush.strokeWidth=18f
         params= LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
     }
-    public fun start(x:Float,y:Float)
-    {
-        path.moveTo(x*canvasWidth, y*canvasHeight);
+
+    fun clear() {
+        path = Path()
         postInvalidate()
     }
-    public fun co(x:Float,y:Float)
+
+    fun start(x:Float,y:Float)
+    {
+        path.moveTo(x*canvasWidth, y*canvasHeight)
+        postInvalidate()
+    }
+
+    fun co(x:Float,y:Float)
     {
         path.lineTo(x*canvasWidth, y*canvasHeight)
         postInvalidate()
     }
-    public fun end(x:Float,y:Float)
+
+    fun end(x:Float,y:Float)
     {
         path.lineTo(x*canvasWidth, y*canvasHeight)
         postInvalidate()
     }
-    public fun getref(ref:String?){
+
+    fun getref(ref:String?){
         reference=ref
         database = Firebase.database
         postReference = database.reference.child("drawingData").child(reference!!)
     }
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val pointX = event.x
         val pointY = event.y

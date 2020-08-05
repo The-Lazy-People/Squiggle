@@ -22,7 +22,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var prefs: SharedPreferences
     private lateinit var database: FirebaseDatabase
     private lateinit var roomReference: DatabaseReference
-    private lateinit var playerReference: DatabaseReference
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -38,9 +37,7 @@ class MainActivity : AppCompatActivity() {
         prefs = this.getSharedPreferences(
             getString(R.string.packageName), Context.MODE_PRIVATE
         )
-        playerReference=database.reference.child("players")
-        val playerInfoKeeper=playerInfo(prefs.getString(getString(R.string.userName), "EMPTY"),prefs.getString(getString(R.string.userId), "EMPTY"))
-        playerReference.child(prefs.getString(getString(R.string.userId), "EMPTY")!!).setValue(playerInfoKeeper)
+
         passwordSwitchButton.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 closedRoomPassword.visibility = View.VISIBLE
@@ -63,18 +60,19 @@ class MainActivity : AppCompatActivity() {
                 val userId : String? = prefs.getString(getString(R.string.userId), "EMPTY")
                 val userName : String? = prefs.getString(getString(R.string.userName), "EMPTY")
                 if(userId != "EMPTY") {
-                    roomReference.child(userId.toString()).child("gamestarted").setValue(0)
-                    roomReference.child(userId.toString()).child("roomname").setValue(roomName.text.toString())
-                    roomReference.child(userId.toString()).child("reference").setValue(userId.toString())
-                    roomReference.child(userId.toString()).child("Players").child(userId.toString()).setValue(playerInfo(userName,userId))
+                    val referenceUuidPlusTimestamp = userId.toString() + System.currentTimeMillis().toString()
+                    roomReference.child(referenceUuidPlusTimestamp).child("gamestarted").setValue(0)
+                    roomReference.child(referenceUuidPlusTimestamp).child("roomname").setValue(roomName.text.toString())
+                    roomReference.child(referenceUuidPlusTimestamp).child("reference").setValue(referenceUuidPlusTimestamp)
+                    roomReference.child(referenceUuidPlusTimestamp).child("Players").child(userId.toString()).setValue(playerInfo(userName,userId))
                     database.reference.child("drawingData").child(userId.toString()).removeValue()
                     if (passwordSwitchButton.isChecked) {
-                        roomReference.child(userId.toString()).child("password")
+                        roomReference.child(referenceUuidPlusTimestamp).child("password")
                             .setValue(closedRoomPassword.text.toString())
                     } else {
-                        roomReference.child(userId.toString()).child("password").setValue(getString(R.string.NO))
+                        roomReference.child(referenceUuidPlusTimestamp).child("password").setValue(getString(R.string.NO))
                     }
-                    createAndJoinRoom(userId.toString())
+                    createAndJoinRoom(referenceUuidPlusTimestamp)
                 }else{
                     Toast.makeText(this, getString(R.string.userNotFoundError), Toast.LENGTH_SHORT).show()
                 }
@@ -83,27 +81,11 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun createAndJoinRoom(userId : String){
+    private fun createAndJoinRoom(referenceUuidPlusTimestamp : String){
         val intent = Intent(this, WaitingActivity::class.java)
-        intent.putExtra("reference", userId)
+        intent.putExtra("reference", referenceUuidPlusTimestamp)
         intent.putExtra("host",1)
         startActivity(intent)
         Toast.makeText(this, "Room created", Toast.LENGTH_SHORT).show()
-    }
-    override fun onPause() {
-        super.onPause()
-        val userId: String? = prefs.getString(getString(R.string.userId), "EMPTY")
-        if (userId != "EMPTY") {
-            database.reference.child("players").child(userId.toString()).removeValue()
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        val userId: String? = prefs.getString(getString(R.string.userId), "EMPTY")
-        val useName: String? = prefs.getString(getString(R.string.userName), "EMPTY")
-        if (userId != "EMPTY") {
-            database.reference.child("players").child(userId.toString()).setValue(playerInfo(useName,userId))
-        }
     }
 }

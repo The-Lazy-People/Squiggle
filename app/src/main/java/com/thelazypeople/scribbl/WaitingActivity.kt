@@ -29,6 +29,8 @@ class WaitingActivity : AppCompatActivity() {
     private var playersInGame = mutableListOf<playerInfo>()
     private var host=0
     private lateinit var valueEventListenerForGameStarted:ValueEventListener
+    private var goToMainActivityBoolean : Boolean = true
+    private var backButtonPressedBoolean : Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,7 +75,7 @@ class WaitingActivity : AppCompatActivity() {
             drawTime_spin.adapter = adapter
         }
 
-        playerReference = database.child("rooms").child(reference.toString()).child("Players")
+        playerReference = database.child("rooms").child(reference).child("Players")
         childEventListenerForPlayers = object : ChildEventListener {
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                 val player = snapshot.getValue<playerInfo>()
@@ -117,9 +119,7 @@ class WaitingActivity : AppCompatActivity() {
                 Log.i("TESTER",snapshot.value.toString()+"yahi h")
                 if (snapshot.value.toString()=="1"){
                     Log.i("TESTER","hogaya")
-                    val intent = Intent(applicationContext, GameActivity::class.java)
-                    intent.putExtra("reference", reference)
-                    startActivity(intent)
+                    routeToGameActivity()
                 }
             }
 
@@ -130,35 +130,51 @@ class WaitingActivity : AppCompatActivity() {
         btnStart.setOnClickListener {
 
             database.child("rooms").child(reference).child("gamestarted").setValue(1)
-            val intent = Intent(this, GameActivity::class.java)
-            intent.putExtra("reference", reference)
-            startActivity(intent)
+            routeToGameActivity()
             Toast.makeText(this, "Game Started", Toast.LENGTH_SHORT).show()
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        backButtonPressedBoolean = false
+        val userId: String? = prefs.getString(getString(R.string.userId), "EMPTY")
+        val useName: String? = prefs.getString(getString(R.string.userName), "EMPTY")
+        if (userId != "EMPTY") {
+            Log.i("###WAITINGACTIVITY","done")
+            database.child("rooms").child(reference).child("Players").child(userId.toString()).setValue(playerInfo(useName,userId))
+        }
+    }
+
     override fun onPause() {
         super.onPause()
         val userId: String? = prefs.getString(getString(R.string.userId), "EMPTY")
         if (userId != "EMPTY") {
-            database.child("rooms").child(reference.toString()).child("Players").child(userId!!)
+            database.child("rooms").child(reference).child("Players").child(userId!!)
                 .removeValue()
-            database.child("players").child(userId.toString()).removeValue()
         }
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
-    }
-    override fun onResume() {
-        super.onResume()
-        val userId: String? = prefs.getString(getString(R.string.userId), "EMPTY")
-        val useName: String? = prefs.getString(getString(R.string.userName), "EMPTY")
-        if (userId != "EMPTY") {
-            database.child("rooms").child(reference.toString()).child("Players").child(userId.toString()).setValue(playerInfo(useName,userId))
-            database.child("players").child(userId.toString()).setValue(playerInfo(useName,userId))
+        if(!backButtonPressedBoolean) {
+            routeToMainActivity()
         }
     }
+
     override fun onBackPressed() {
         super.onBackPressed()
-        val intent = Intent(this, MainActivity::class.java)
+        backButtonPressedBoolean = true
+        routeToMainActivity()
+    }
+
+    private fun routeToMainActivity(){
+        if(goToMainActivityBoolean){
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        }
+    }
+
+    private fun routeToGameActivity(){
+        goToMainActivityBoolean = false
+        val intent = Intent(this, GameActivity::class.java)
+        intent.putExtra("reference", reference)
         startActivity(intent)
     }
 }

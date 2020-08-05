@@ -31,7 +31,7 @@ class GameActivity : AppCompatActivity() {
     private lateinit var childEventListenerForChat: ChildEventListener
     private lateinit var childEventListenerForPlayers: ChildEventListener
     private lateinit var childEventListenerForGame: ChildEventListener
-    public var reference: String? = ""
+    var reference: String? = ""
     private var otherUserName:String?=""
     private var downloadText: String = ""
     private var playersList= mutableListOf<playerInfo>()
@@ -39,6 +39,8 @@ class GameActivity : AppCompatActivity() {
     var playerCount:Long=0
     private lateinit var postRef:DatabaseReference
     var baseCount:Long=1
+    private var goToMainActivityBoolean : Boolean = true
+    private var backButtonPressedBoolean : Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +48,7 @@ class GameActivity : AppCompatActivity() {
 
         val paintView=PaintView(this)
         main.addView(paintView)
+        paintView.clear()
         btn1.setOnClickListener {
 
             //Toast.makeText(this,"CLICK ME", Toast.LENGTH_LONG).show()
@@ -70,7 +73,8 @@ class GameActivity : AppCompatActivity() {
         database = Firebase.database.reference
         if (reference != null) {
             postReference = database.child("games").child(reference.toString()).child("Chats")
-            postRef=database.child("drawingData").child(reference.toString())
+
+            // Chat reference for a room
             childEventListenerForChat = object : ChildEventListener {
                 override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                     val textObj = snapshot.getValue<ChatText>()
@@ -101,7 +105,10 @@ class GameActivity : AppCompatActivity() {
                 }
 
             }
+            postReference.addChildEventListener(childEventListenerForChat)
 
+            // Drawing data reference of a room
+            postRef=database.child("drawingData").child(reference.toString())
             childEventListenerForGame = object : ChildEventListener{
 
                 override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
@@ -133,12 +140,10 @@ class GameActivity : AppCompatActivity() {
                 }
 
             }
-
             postRef.addChildEventListener(childEventListenerForGame)
-            postReference.addChildEventListener(childEventListenerForChat)
 
+            // Player reference in a room
             playerReference = database.child("rooms").child(reference.toString()).child("Players")
-
             childEventListenerForPlayers = object : ChildEventListener {
                 override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                     val playerInfoObj = snapshot.getValue<playerInfo>()
@@ -205,7 +210,6 @@ class GameActivity : AppCompatActivity() {
         if (userId != "EMPTY") {
             database.child("rooms").child(reference.toString()).child("Players").child(userId!!)
                 .removeValue()
-            database.child("players").child(userId.toString()).removeValue()
         }
         Log.i("counter2",playerCount.toString())
         if(playerCount<=baseCount){
@@ -214,23 +218,34 @@ class GameActivity : AppCompatActivity() {
             database.child("drawingData").child(reference.toString()).removeValue()
         }
         Log.i("counter3",playerCount.toString())
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
+        if(!backButtonPressedBoolean) {
+            routeToMainActivity()
+        }
 
     }
+
     override fun onResume() {
         super.onResume()
+        backButtonPressedBoolean = false
         val userId: String? = prefs.getString(getString(R.string.userId), "EMPTY")
         val useName: String? = prefs.getString(getString(R.string.userName), "EMPTY")
+        Log.i("#####USER ID", userId)
+        Log.i("#####REFERENCE", reference.toString())
         if (userId != "EMPTY") {
             database.child("rooms").child(reference.toString()).child("Players").child(userId.toString()).setValue(playerInfo(useName,userId))
-            database.child("players").child(userId.toString()).setValue(playerInfo(useName,userId))
         }
     }
 
     override fun onBackPressed() {
         super.onBackPressed()
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
+        backButtonPressedBoolean = true
+        routeToMainActivity()
+    }
+
+    private fun routeToMainActivity(){
+        if(goToMainActivityBoolean){
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        }
     }
 }
