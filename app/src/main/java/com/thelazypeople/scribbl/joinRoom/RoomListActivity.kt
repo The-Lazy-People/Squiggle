@@ -18,14 +18,16 @@ import com.google.firebase.ktx.Firebase
 import com.thelazypeople.scribbl.GameActivity
 import com.thelazypeople.scribbl.R
 import com.thelazypeople.scribbl.WaitingActivity
+import com.thelazypeople.scribbl.adapters.PlayersListAdapter
 import com.thelazypeople.scribbl.model.playerInfo
 import com.thelazypeople.scribbl.model.roomInfo
 import kotlinx.android.synthetic.main.activity_room_list.*
+import kotlinx.android.synthetic.main.activity_waiting.*
 
 class RoomListActivity : AppCompatActivity() {
     private lateinit var database: FirebaseDatabase
     private lateinit var roomReference: DatabaseReference
-    private lateinit var roomList: ArrayList<roomInfo>
+    private var roomList= mutableListOf<roomInfo>()
     private lateinit var prefs: SharedPreferences
     private lateinit var childEventListenerForRooms: ChildEventListener
 
@@ -70,7 +72,14 @@ class RoomListActivity : AppCompatActivity() {
 
             override fun onChildRemoved(snapshot: DataSnapshot) {
                 val room = snapshot.getValue<roomInfo>()
-                roomList.remove(room!!)
+                val temp= mutableListOf<roomInfo>()
+                for (i in 0..roomList.size-1){
+                    if (roomList[i].reference!=room?.reference){
+                        temp.add(roomList[i])
+                        Log.i("AAJAJA",roomList[i].roomname)
+                    }
+                }
+                roomList=temp
                 adapter.notifyDataSetChanged()
             }
 

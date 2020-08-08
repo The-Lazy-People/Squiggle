@@ -102,13 +102,18 @@ class WaitingActivity : AppCompatActivity() {
             override fun onChildRemoved(snapshot: DataSnapshot) {
                 val player = snapshot.getValue<playerInfo>()
                 if (player!=null) {
-                    playersInGame.remove(player)
+                    val temp= mutableListOf<playerInfo>()
+                    for (i in 0..playersInGame.size-1){
+                        if (playersInGame[i].UID!=player.UID){
+                            temp.add(playersInGame[i])
+                            Log.i("AAJAJA",playersInGame[i].Name)
+                        }
+                    }
+                    playersInGame=temp
                     val playerAdapter = PlayersListAdapter(playersInGame)
                     players_recycler.adapter = playerAdapter
                 }
-
             }
-
         }
         playerReference.addChildEventListener(childEventListenerForPlayers)
 
