@@ -43,10 +43,10 @@ class WaitingActivity : AppCompatActivity() {
         reference = intent.getStringExtra("reference")
         host=intent.getIntExtra("host",0)
         Log.i("TESTER",host.toString())
-        val playerAdapter = PlayersListAdapter(playersInGame)
+
         val layoutManager = LinearLayoutManager(this)
         players_recycler.layoutManager = layoutManager
-        players_recycler.adapter = playerAdapter
+
 
         if(host==0){
             btnStart.isClickable=false
@@ -79,9 +79,11 @@ class WaitingActivity : AppCompatActivity() {
         childEventListenerForPlayers = object : ChildEventListener {
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                 val player = snapshot.getValue<playerInfo>()
-                if (player!=null)
+                if (player!=null) {
                     playersInGame.add(player)
-                playerAdapter.notifyDataSetChanged()
+                    val playerAdapter = PlayersListAdapter(playersInGame)
+                    players_recycler.adapter = playerAdapter
+                }
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -99,9 +101,12 @@ class WaitingActivity : AppCompatActivity() {
 
             override fun onChildRemoved(snapshot: DataSnapshot) {
                 val player = snapshot.getValue<playerInfo>()
-                if(player!=null)
+                if (player!=null) {
                     playersInGame.remove(player)
-                playerAdapter.notifyDataSetChanged()
+                    val playerAdapter = PlayersListAdapter(playersInGame)
+                    players_recycler.adapter = playerAdapter
+                }
+
             }
 
         }

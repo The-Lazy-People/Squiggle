@@ -2,6 +2,7 @@ package com.thelazypeople.scribbl
 
 import android.content.Context
 import android.graphics.*
+import android.util.Log
 import android.view.MotionEvent
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
@@ -25,6 +26,7 @@ class PaintView(context: Context?): android.view.View(context) {
     var reference:String?=""
     var color = Color.BLACK
     var brushWidth = 14f
+    var isclear=0
 
     init{
         brush.isAntiAlias =true
@@ -71,6 +73,10 @@ class PaintView(context: Context?): android.view.View(context) {
         when(event.action)
         {
             MotionEvent.ACTION_DOWN -> {
+                if(isclear==1){
+                    postReference.removeValue()
+                    isclear=0
+                }
                 path.moveTo(pointX, pointY)
                 uploadToDatabase(pointX/canvasWidth , pointY/canvasHeight , 0)
                 return true
@@ -101,7 +107,7 @@ class PaintView(context: Context?): android.view.View(context) {
     private fun uploadToDatabase(pointX:Float, pointY:Float , type: Int) {
         val info =
             Information(pointX, pointY, type)
-
+        Log.i("DOWNLOADORNOT",info!!.type.toString()+" "+info.pointX.toString()+" "+info.pointY.toString())
         postReference.push().setValue(info)
     }
 }

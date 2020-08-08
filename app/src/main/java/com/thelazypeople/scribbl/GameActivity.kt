@@ -48,13 +48,14 @@ class GameActivity : AppCompatActivity() {
 
         val paintView=PaintView(this)
         main.addView(paintView)
-        paintView.clear()
 
-       paint_brush.setOnClickListener {
 
-       }
+
+
         eraser.setOnClickListener {
             paintView.clear()
+            postRef.push().setValue(Information(10001f,10001f,3))
+            paintView.isclear=1
         }
 
         prefs = this.getSharedPreferences(
@@ -115,14 +116,20 @@ class GameActivity : AppCompatActivity() {
 
                 override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                     val info = snapshot.getValue<Information>()
-                    Log.i("DOWNLOADORNOT",info!!.type.toString()+" "+info.pointX.toString()+" "+info.pointY+toString())
-                    if(info?.type == 0){
+                    Log.i("DOWNLOADORNOT",info!!.type.toString()+" "+info.pointX.toString()+" "+info.pointY.toString())
+                    if(info.type == 0){
                         paintView.start(info.pointX , info.pointY)
-                    }else if(info?.type == 2){
+                        Toast.makeText(this@GameActivity,"Start",Toast.LENGTH_SHORT).show()
+                    }else if(info.type == 2){
                         paintView.co(info!!.pointX , info.pointY)
                     }
-                    else{
+                    else if(info.type==1){
                         paintView.end(info!!.pointX , info.pointY)
+                        Toast.makeText(this@GameActivity,"End",Toast.LENGTH_SHORT).show()
+                    }
+                    else if(info.type==3){
+                        paintView.clear()
+                        Toast.makeText(this@GameActivity,"Clear",Toast.LENGTH_SHORT).show()
                     }
                 }
                 override fun onCancelled(error: DatabaseError) {
