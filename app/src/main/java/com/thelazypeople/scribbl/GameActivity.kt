@@ -3,7 +3,6 @@ package com.thelazypeople.scribbl
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -52,12 +51,10 @@ class GameActivity : AppCompatActivity() {
         paintView.clear()
 
        paint_brush.setOnClickListener {
-           paintView.brushWidth = 14f
-           paintView.color = Color.BLACK
+
        }
         eraser.setOnClickListener {
-            paintView.brushWidth = 20f
-            paintView.color = Color.WHITE
+            paintView.clear()
         }
 
         prefs = this.getSharedPreferences(
@@ -155,7 +152,7 @@ class GameActivity : AppCompatActivity() {
                     if(playerInfoObj!=null) {
                         playersList.add(playerInfoObj)
                     }
-                    playerCount++;
+                    playerCount++
                 }
 
                 override fun onCancelled(error: DatabaseError) {
