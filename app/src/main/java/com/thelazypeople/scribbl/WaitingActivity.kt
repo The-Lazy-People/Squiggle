@@ -32,6 +32,9 @@ class WaitingActivity : AppCompatActivity() {
     private var goToMainActivityBoolean : Boolean = true
     private var backButtonPressedBoolean : Boolean = false
 
+    var playerCount:Long=0
+    private val baseCount:Long=1
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_waiting)
@@ -81,6 +84,7 @@ class WaitingActivity : AppCompatActivity() {
                 val player = snapshot.getValue<playerInfo>()
                 if (player!=null) {
                     playersInGame.add(player)
+                    playerCount++
                     val playerAdapter = PlayersListAdapter(playersInGame)
                     players_recycler.adapter = playerAdapter
                 }
@@ -102,6 +106,7 @@ class WaitingActivity : AppCompatActivity() {
             override fun onChildRemoved(snapshot: DataSnapshot) {
                 val player = snapshot.getValue<playerInfo>()
                 if (player!=null) {
+                    playerCount--
                     val temp= mutableListOf<playerInfo>()
                     for (i in 0..playersInGame.size-1){
                         if (playersInGame[i].UID!=player.UID){
@@ -119,7 +124,7 @@ class WaitingActivity : AppCompatActivity() {
 
 
 
-        gameStartedRef = database.child("rooms").child(reference).child("gamestarted")
+        gameStartedRef = database.child("rooms").child(reference).child("info").child("gamestarted")
         valueEventListenerForGameStarted = object : ValueEventListener {
             override fun onCancelled(error: DatabaseError) {
 
@@ -139,7 +144,7 @@ class WaitingActivity : AppCompatActivity() {
 
         btnStart.setOnClickListener {
 
-            database.child("rooms").child(reference).child("gamestarted").setValue(1)
+            database.child("rooms").child(reference).child("info").child("gamestarted").setValue(1)
             routeToGameActivity()
             Toast.makeText(this, "Game Started", Toast.LENGTH_SHORT).show()
         }
@@ -162,6 +167,9 @@ class WaitingActivity : AppCompatActivity() {
         if (userId != "EMPTY") {
             database.child("rooms").child(reference).child("Players").child(userId!!)
                 .removeValue()
+        }
+        if(playerCount<=baseCount){
+            database.child("rooms").child(reference).removeValue()
         }
         if(!backButtonPressedBoolean) {
             routeToMainActivity()

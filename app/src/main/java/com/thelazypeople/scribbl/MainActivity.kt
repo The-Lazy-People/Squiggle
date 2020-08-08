@@ -15,6 +15,7 @@ import com.google.firebase.ktx.Firebase
 import com.thelazypeople.scribbl.auth.AuthActivity
 import com.thelazypeople.scribbl.joinRoom.RoomListActivity
 import com.thelazypeople.scribbl.model.playerInfo
+import com.thelazypeople.scribbl.model.roomInfo
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -57,35 +58,60 @@ class MainActivity : AppCompatActivity() {
             if (roomName.text.isNullOrEmpty() || passwordSwitchButton.isChecked && closedRoomPassword.text.isNullOrEmpty()) {
                 Toast.makeText(this, getString(R.string.fieldEmpty), Toast.LENGTH_LONG).show()
             } else {
-                val userId : String? = prefs.getString(getString(R.string.userId), "EMPTY")
-                val userName : String? = prefs.getString(getString(R.string.userName), "EMPTY")
-                if(userId != "EMPTY") {
-                    val referenceUuidPlusTimestamp = userId.toString() + System.currentTimeMillis().toString()
-                    roomReference.child(referenceUuidPlusTimestamp).child("gamestarted").setValue(0)
-                    roomReference.child(referenceUuidPlusTimestamp).child("roomname").setValue(roomName.text.toString())
-                    roomReference.child(referenceUuidPlusTimestamp).child("reference").setValue(referenceUuidPlusTimestamp)
-                    roomReference.child(referenceUuidPlusTimestamp).child("Players").child(userId.toString()).setValue(playerInfo(userName,userId))
+                val userId: String? = prefs.getString(getString(R.string.userId), "EMPTY")
+                val userName: String? = prefs.getString(getString(R.string.userName), "EMPTY")
+                if (userId != "EMPTY") {
+                    val referenceUuidPlusTimestamp =
+                        userId.toString() + System.currentTimeMillis().toString()
                     database.reference.child("drawingData").child(userId.toString()).removeValue()
                     if (passwordSwitchButton.isChecked) {
-                        roomReference.child(referenceUuidPlusTimestamp).child("password")
-                            .setValue(closedRoomPassword.text.toString())
+                        uploadRoomInfo(
+                            referenceUuidPlusTimestamp,
+                            0,
+                            closedRoomPassword.text.toString(),
+                            roomName.text.toString().trim(),
+                            userId.toString(),
+                            userName.toString()
+                        )
                     } else {
-                        roomReference.child(referenceUuidPlusTimestamp).child("password").setValue(getString(R.string.NO))
+                        uploadRoomInfo(
+                            referenceUuidPlusTimestamp,
+                            0,
+                            getString(R.string.NO),
+                            roomName.text.toString().trim(),
+                            userId.toString(),
+                            userName.toString()
+                        )
                     }
                     createAndJoinRoom(referenceUuidPlusTimestamp)
-                }else{
-                    Toast.makeText(this, getString(R.string.userNotFoundError), Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, getString(R.string.userNotFoundError), Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
         }
 
     }
 
-    private fun createAndJoinRoom(referenceUuidPlusTimestamp : String){
+    private fun createAndJoinRoom(referenceUuidPlusTimestamp: String) {
         val intent = Intent(this, WaitingActivity::class.java)
         intent.putExtra("reference", referenceUuidPlusTimestamp)
-        intent.putExtra("host",1)
+        intent.putExtra("host", 1)
         startActivity(intent)
         Toast.makeText(this, "Room created", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun uploadRoomInfo(
+        referenceUuidPlusTimestamp: String,
+        gameStarted: Int,
+        password: String,
+        roomname: String,
+        userId : String,
+        userName : String
+    ) {
+        val roomInfo = roomInfo(gameStarted, password, referenceUuidPlusTimestamp, roomname)
+        roomReference.child(referenceUuidPlusTimestamp).child("info").setValue(roomInfo)
+        roomReference.child(referenceUuidPlusTimestamp).child("Players")
+            .child(userId).setValue(playerInfo(userName, userId))
     }
 }

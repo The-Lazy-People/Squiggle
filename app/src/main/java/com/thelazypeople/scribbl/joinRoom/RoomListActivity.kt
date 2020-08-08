@@ -15,19 +15,16 @@ import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
-import com.thelazypeople.scribbl.GameActivity
 import com.thelazypeople.scribbl.R
 import com.thelazypeople.scribbl.WaitingActivity
-import com.thelazypeople.scribbl.adapters.PlayersListAdapter
 import com.thelazypeople.scribbl.model.playerInfo
 import com.thelazypeople.scribbl.model.roomInfo
 import kotlinx.android.synthetic.main.activity_room_list.*
-import kotlinx.android.synthetic.main.activity_waiting.*
 
 class RoomListActivity : AppCompatActivity() {
     private lateinit var database: FirebaseDatabase
     private lateinit var roomReference: DatabaseReference
-    private var roomList= mutableListOf<roomInfo>()
+    private var roomList = mutableListOf<roomInfo>()
     private lateinit var prefs: SharedPreferences
     private lateinit var childEventListenerForRooms: ChildEventListener
 
@@ -52,9 +49,12 @@ class RoomListActivity : AppCompatActivity() {
 
         childEventListenerForRooms = object : ChildEventListener {
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-                val room = snapshot.getValue<roomInfo>()
-                roomList.add(room!!)
-                adapter.notifyDataSetChanged()
+                val room = snapshot.child("info").getValue<roomInfo>()
+                if(room != null){
+                    Log.i("#######",room.toString())
+                    roomList.add(room)
+                    adapter.notifyDataSetChanged()
+                }
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -67,20 +67,23 @@ class RoomListActivity : AppCompatActivity() {
 
             override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
                 // not needed
-
             }
 
             override fun onChildRemoved(snapshot: DataSnapshot) {
-                val room = snapshot.getValue<roomInfo>()
-                val temp= mutableListOf<roomInfo>()
-                for (i in 0..roomList.size-1){
-                    if (roomList[i].reference!=room?.reference){
+                val room = snapshot.child("info").getValue<roomInfo>()
+                val temp = mutableListOf<roomInfo>()
+                for (i in 0..roomList.size - 1) {
+                    if (roomList[i].reference != room?.reference) {
                         temp.add(roomList[i])
-                        Log.i("AAJAJA",roomList[i].roomname)
+                        Log.i("AAJAJA", roomList[i].roomname)
                     }
                 }
-                roomList=temp
-                adapter.notifyDataSetChanged()
+                roomList = temp
+                val joinRoomAdapter = JoinRoomAdapter(
+                    this@RoomListActivity,
+                    R.layout.list_item_row, roomList
+                )
+                listView.adapter = joinRoomAdapter
             }
 
         }
@@ -116,7 +119,7 @@ class RoomListActivity : AppCompatActivity() {
                 } else {
                     if (passEntered == roomList[position].password) {
                         joinRoom(position)
-                    }else{
+                    } else {
                         Toast.makeText(this, "Password incorrect", Toast.LENGTH_SHORT).show()
                     }
                     alertDialog.dismiss()
@@ -127,19 +130,20 @@ class RoomListActivity : AppCompatActivity() {
         alertDialog.show()
     }
 
-    private fun joinRoom(position: Int){
-        val userId : String? = prefs.getString(getString(R.string.userId), "EMPTY")
-        val userName : String? = prefs.getString(getString(R.string.userName), "EMPTY")
-        if(userId != "EMPTY") {
-            roomReference.child(roomList[position].reference).child("Players").child(userId.toString()).setValue(
-                playerInfo(userName,userId)
+    private fun joinRoom(position: Int) {
+        val userId: String? = prefs.getString(getString(R.string.userId), "EMPTY")
+        val userName: String? = prefs.getString(getString(R.string.userName), "EMPTY")
+        if (userId != "EMPTY") {
+            database.reference.child("rooms").child(roomList[position].reference).child("Players")
+                .child(userId.toString()).setValue(
+                playerInfo(userName, userId)
             )
             val intent = Intent(this, WaitingActivity::class.java)
             intent.putExtra("reference", roomList[position].reference)
-            intent.putExtra("host",0)
+            intent.putExtra("host", 0)
             startActivity(intent)
             Toast.makeText(this, "Room joined", Toast.LENGTH_SHORT).show()
-        }else{
+        } else {
             Toast.makeText(this, getString(R.string.userNotFoundError), Toast.LENGTH_SHORT).show()
         }
     }

@@ -27,7 +27,6 @@ class GameActivity : AppCompatActivity() {
     private lateinit var database: DatabaseReference
     private lateinit var postReference: DatabaseReference
     private lateinit var playerReference: DatabaseReference
-    private lateinit var roomReference: DatabaseReference
     private lateinit var childEventListenerForChat: ChildEventListener
     private lateinit var childEventListenerForPlayers: ChildEventListener
     private lateinit var childEventListenerForGame: ChildEventListener
@@ -38,7 +37,7 @@ class GameActivity : AppCompatActivity() {
     private var chatsDisplay = mutableListOf<ChatText>()
     var playerCount:Long=0
     private lateinit var postRef:DatabaseReference
-    var baseCount:Long=1
+    private val baseCount:Long=1
     private var goToMainActivityBoolean : Boolean = true
     private var backButtonPressedBoolean : Boolean = false
 
@@ -48,9 +47,6 @@ class GameActivity : AppCompatActivity() {
 
         val paintView=PaintView(this)
         main.addView(paintView)
-
-
-
 
         eraser.setOnClickListener {
             paintView.clear()
@@ -158,8 +154,8 @@ class GameActivity : AppCompatActivity() {
                     val playerInfoObj = snapshot.getValue<playerInfo>()
                     if(playerInfoObj!=null) {
                         playersList.add(playerInfoObj)
+                        playerCount++
                     }
-                    playerCount++
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -179,8 +175,8 @@ class GameActivity : AppCompatActivity() {
                     val playerInfoObj = snapshot.getValue<playerInfo>()
                     if(playerInfoObj!=null) {
                         playersList.remove(playerInfoObj)
+                        playerCount--
                     }
-                    playerCount--
                 }
 
             }
