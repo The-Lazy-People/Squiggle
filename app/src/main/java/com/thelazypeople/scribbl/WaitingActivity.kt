@@ -193,6 +193,7 @@ class WaitingActivity : AppCompatActivity() {
         goToMainActivityBoolean = false
         val intent = Intent(this, GameActivity::class.java)
         intent.putExtra("reference", reference)
+        intent.putExtra("host", host)
         startActivity(intent)
     }
 }

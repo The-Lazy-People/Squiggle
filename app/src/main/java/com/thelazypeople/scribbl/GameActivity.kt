@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.util.Log
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,6 +24,9 @@ import kotlinx.android.synthetic.main.activity_game.*
 import kotlinx.android.synthetic.main.chats_preview.*
 
 class GameActivity : AppCompatActivity() {
+    private var serverHost: Int=0
+    private var userName=""
+    private var userId=""
     private lateinit var prefs: SharedPreferences
     private lateinit var database: DatabaseReference
     private lateinit var postReference: DatabaseReference
@@ -40,6 +44,7 @@ class GameActivity : AppCompatActivity() {
     private val baseCount:Long=1
     private var goToMainActivityBoolean : Boolean = true
     private var backButtonPressedBoolean : Boolean = false
+    private var host=0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,18 +54,26 @@ class GameActivity : AppCompatActivity() {
         main.addView(paintView)
 
         eraser.setOnClickListener {
-            paintView.clear()
-            postRef.push().setValue(Information(10001f,10001f,3))
-            paintView.isclear=1
+            if (host==1) {
+                paintView.clear()
+                postRef.push().setValue(Information(10001f, 10001f, 3))
+                paintView.isclear = 1
+            }
         }
+
+
 
         prefs = this.getSharedPreferences(
             getString(R.string.packageName), Context.MODE_PRIVATE
         )
+        userId= prefs.getString(getString(R.string.userId), "EMPTY")!!
+        userName= prefs.getString(getString(R.string.userName), "EMPTY")!!
         val intent: Intent = intent
         reference = intent.getStringExtra("reference")
+        serverHost=intent.getIntExtra("host",0)
         paintView.end(0f,0f)
         paintView.getref(reference)
+
 
         val chatAdapter = ChatAdapter(chats = chatsDisplay)
         val layoutManager = LinearLayoutManager(this)
@@ -71,6 +84,11 @@ class GameActivity : AppCompatActivity() {
 
         database = Firebase.database.reference
         if (reference != null) {
+            if (serverHost==1){
+                database.child("rooms").child(reference.toString()).child("info").child("chanceChange").setValue(1)
+                paintView.host=1
+                host=1
+            }
             postReference = database.child("games").child(reference.toString()).child("Chats")
 
             // Chat reference for a room
@@ -200,6 +218,18 @@ class GameActivity : AppCompatActivity() {
             }
         }
 
+    }
+    private fun countdown(sec:Long){
+        var countdown_timer = object : CountDownTimer(sec, 1000) {
+            override fun onFinish() {
+                Log.i("TIMER","Finish")
+            }
+
+            override fun onTick(p0: Long) {
+                Log.i("TIMER",(p0/1000).toString())
+            }
+        }
+        countdown_timer.start()
     }
 
     private fun uploadToDatabase(cur_text: String) {

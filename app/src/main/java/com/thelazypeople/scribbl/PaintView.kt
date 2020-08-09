@@ -25,8 +25,8 @@ class PaintView(context: Context?): android.view.View(context) {
     var canvasWidth=1
     var reference:String?=""
     var color = Color.BLACK
-    var brushWidth = 14f
     var isclear=0
+    var host=0
 
     init{
         brush.isAntiAlias =true
@@ -44,20 +44,26 @@ class PaintView(context: Context?): android.view.View(context) {
 
     fun start(x:Float,y:Float)
     {
-        path.moveTo(x*canvasWidth, y*canvasHeight)
-        postInvalidate()
+        if (host==0) {
+            path.moveTo(x * canvasWidth, y * canvasHeight)
+            postInvalidate()
+        }
     }
 
     fun co(x:Float,y:Float)
     {
-        path.lineTo(x*canvasWidth, y*canvasHeight)
-        postInvalidate()
+        if (host==0) {
+            path.lineTo(x * canvasWidth, y * canvasHeight)
+            postInvalidate()
+        }
     }
 
     fun end(x:Float,y:Float)
     {
-        path.lineTo(x*canvasWidth, y*canvasHeight)
-        postInvalidate()
+        if (host==0) {
+            path.lineTo(x * canvasWidth, y * canvasHeight)
+            postInvalidate()
+        }
     }
 
     fun getref(ref:String?){
@@ -73,6 +79,9 @@ class PaintView(context: Context?): android.view.View(context) {
         when(event.action)
         {
             MotionEvent.ACTION_DOWN -> {
+                if (host==0){
+                    return false
+                }
                 if(isclear==1){
                     postReference.removeValue()
                     isclear=0
@@ -82,12 +91,17 @@ class PaintView(context: Context?): android.view.View(context) {
                 return true
             }
             MotionEvent.ACTION_UP -> {
-
+                if (host==0){
+                    return false
+                }
                 path.moveTo(pointX, pointY)
                 uploadToDatabase(pointX/canvasWidth , pointY/canvasHeight , 1)
                 return true
             }
             MotionEvent.ACTION_MOVE -> {
+                if (host==0){
+                    return false
+                }
                 path.lineTo(pointX, pointY)
                 uploadToDatabase(pointX/canvasWidth , pointY/canvasHeight , 2)
             }
