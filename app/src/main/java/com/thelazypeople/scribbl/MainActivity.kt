@@ -113,5 +113,6 @@ class MainActivity : AppCompatActivity() {
         roomReference.child(referenceUuidPlusTimestamp).child("info").setValue(roomInfo)
         roomReference.child(referenceUuidPlusTimestamp).child("Players")
             .child(userId).setValue(playerInfo(userName, userId))
+        roomReference.child(referenceUuidPlusTimestamp).child("server").setValue(userId)
     }
 }

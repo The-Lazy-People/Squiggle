@@ -9,10 +9,7 @@ import android.os.CountDownTimer
 import android.util.Log
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.firebase.database.ChildEventListener
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
@@ -24,6 +21,11 @@ import kotlinx.android.synthetic.main.activity_game.*
 import kotlinx.android.synthetic.main.chats_preview.*
 
 class GameActivity : AppCompatActivity() {
+    private lateinit var valueEventListenerForWhoesChance: ValueEventListener
+    private lateinit var whoesChanceRef: DatabaseReference
+    private var indexOfChance=-1
+    private lateinit var valueEventListenerForChanceChange: ValueEventListener
+    private lateinit var chanceChangeRef: DatabaseReference
     private var serverHost: Int=0
     private var userName=""
     private var userId=""
@@ -173,6 +175,9 @@ class GameActivity : AppCompatActivity() {
                     if(playerInfoObj!=null) {
                         playersList.add(playerInfoObj)
                         playerCount++
+                        for (i in 0..playersList.size-1){
+                            Log.i("playersadd",playersList[i].Name)
+                        }
                     }
                 }
 
@@ -192,13 +197,59 @@ class GameActivity : AppCompatActivity() {
                 override fun onChildRemoved(snapshot: DataSnapshot) {
                     val playerInfoObj = snapshot.getValue<playerInfo>()
                     if(playerInfoObj!=null) {
-                        playersList.remove(playerInfoObj)
+                        val temp= mutableListOf<playerInfo>()
+                        for (i in 0..playersList.size-1){
+                            if (playersList[i].UID!=playerInfoObj.UID){
+                                temp.add(playersList[i])
+                                Log.i("AAJAJA",playersList[i].Name)
+                            }
+                        }
+                        playersList=temp
                         playerCount--
+                        for (i in 0..playersList.size-1){
+                            Log.i("playersdel",playersList[i].Name)
+                        }
                     }
                 }
 
             }
             playerReference.addChildEventListener(childEventListenerForPlayers)
+
+
+            chanceChangeRef = database.child("rooms").child(reference.toString()).child("info").child("chanceChange")
+            valueEventListenerForChanceChange = object : ValueEventListener {
+                override fun onCancelled(error: DatabaseError) {
+
+                }
+
+                override fun onDataChange(snapshot: DataSnapshot) {
+
+                    if (snapshot.value.toString()=="1"){
+                        if (serverHost==1){
+                            changeUserChance()
+                        }
+                    }
+                }
+
+
+            }
+            chanceChangeRef.addValueEventListener(valueEventListenerForChanceChange)
+            whoesChanceRef = database.child("rooms").child(reference.toString()).child("info").child("chanceUID")
+            valueEventListenerForWhoesChance = object : ValueEventListener {
+                override fun onCancelled(error: DatabaseError) {
+
+                }
+
+                override fun onDataChange(snapshot: DataSnapshot) {
+
+                    if (snapshot.value.toString()==userId){
+                        Toast.makeText(this@GameActivity,"MY CHANCE",Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+
+            }
+            whoesChanceRef.addValueEventListener(valueEventListenerForWhoesChance)
 
         }
 
@@ -219,10 +270,25 @@ class GameActivity : AppCompatActivity() {
         }
 
     }
+
+    private fun changeUserChance() {
+        database.child("rooms").child(reference.toString()).child("info").child("chanceChange").setValue(0)
+        indexOfChance++
+
+        if (indexOfChance>=playersList.size){
+            indexOfChance=0
+        }
+        Log.i("TIMER","index"+indexOfChance.toString())
+        Log.i("TIMER",playersList[indexOfChance].UID)
+        database.child("rooms").child(reference.toString()).child("info").child("chanceUID").setValue(playersList[indexOfChance].UID)
+        //countdown(10000)
+    }
+
     private fun countdown(sec:Long){
         var countdown_timer = object : CountDownTimer(sec, 1000) {
             override fun onFinish() {
                 Log.i("TIMER","Finish")
+                database.child("rooms").child(reference.toString()).child("info").child("chanceChange").setValue(1)
             }
 
             override fun onTick(p0: Long) {
