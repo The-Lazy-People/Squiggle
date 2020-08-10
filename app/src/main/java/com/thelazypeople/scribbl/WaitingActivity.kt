@@ -3,12 +3,12 @@ package com.thelazypeople.scribbl
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
@@ -18,23 +18,24 @@ import com.thelazypeople.scribbl.adapters.PlayersListAdapter
 import com.thelazypeople.scribbl.model.playerInfo
 import kotlinx.android.synthetic.main.activity_waiting.*
 
+
 class WaitingActivity : AppCompatActivity() {
 
     private lateinit var gameStartedRef: DatabaseReference
-    private var reference:String=""
+    private var reference: String = ""
     private lateinit var childEventListenerForPlayers: ChildEventListener
     private lateinit var prefs: SharedPreferences
     private lateinit var playerReference: DatabaseReference
-    private lateinit var database:DatabaseReference
+    private lateinit var database: DatabaseReference
     private var playersInGame = mutableListOf<playerInfo>()
-    private var host=0
-    private lateinit var valueEventListenerForGameStarted:ValueEventListener
-    private var goToMainActivityBoolean : Boolean = false
-    private var goToGameActivityBoolean : Boolean = false
-    private var backButtonPressedBoolean : Boolean = false
+    private var host = 0
+    private lateinit var valueEventListenerForGameStarted: ValueEventListener
+    private var goToMainActivityBoolean: Boolean = false
+    private var goToGameActivityBoolean: Boolean = false
+    private var backButtonPressedBoolean: Boolean = false
 
-    var playerCount:Long=0
-    private val baseCount:Long=1
+    var playerCount: Long = 0
+    private val baseCount: Long = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,17 +46,17 @@ class WaitingActivity : AppCompatActivity() {
         )
         val intent: Intent = intent
         reference = intent.getStringExtra("reference")
-        host=intent.getIntExtra("host",0)
-        Log.i("TESTER",host.toString())
+        host = intent.getIntExtra("host", 0)
+        Log.i("TESTER", host.toString())
 
         val layoutManager = LinearLayoutManager(this)
         players_recycler.layoutManager = layoutManager
 
 
-        if(host==0){
-            btnStart.isClickable=false
-            btnStart.isActivated=false
-            btnStart.isEnabled=false
+        if (host == 0) {
+            btnStart.isClickable = false
+            btnStart.isActivated = false
+            btnStart.isEnabled = false
         }
 
 
@@ -83,7 +84,7 @@ class WaitingActivity : AppCompatActivity() {
         childEventListenerForPlayers = object : ChildEventListener {
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                 val player = snapshot.getValue<playerInfo>()
-                if (player!=null) {
+                if (player != null) {
                     playersInGame.add(player)
                     playerCount++
                     val playerAdapter = PlayersListAdapter(playersInGame)
@@ -106,16 +107,16 @@ class WaitingActivity : AppCompatActivity() {
 
             override fun onChildRemoved(snapshot: DataSnapshot) {
                 val player = snapshot.getValue<playerInfo>()
-                if (player!=null) {
+                if (player != null) {
                     playerCount--
-                    val temp= mutableListOf<playerInfo>()
-                    for (i in 0..playersInGame.size-1){
-                        if (playersInGame[i].UID!=player.UID){
+                    val temp = mutableListOf<playerInfo>()
+                    for (i in 0..playersInGame.size - 1) {
+                        if (playersInGame[i].UID != player.UID) {
                             temp.add(playersInGame[i])
-                            Log.i("AAJAJA",playersInGame[i].Name)
+                            Log.i("AAJAJA", playersInGame[i].Name)
                         }
                     }
-                    playersInGame=temp
+                    playersInGame = temp
                     val playerAdapter = PlayersListAdapter(playersInGame)
                     players_recycler.adapter = playerAdapter
                 }
@@ -132,9 +133,9 @@ class WaitingActivity : AppCompatActivity() {
             }
 
             override fun onDataChange(snapshot: DataSnapshot) {
-                Log.i("TESTER",snapshot.value.toString()+"yahi h")
-                if (snapshot.value.toString()=="1"){
-                    Log.i("TESTER","hogaya")
+                Log.i("TESTER", snapshot.value.toString() + "yahi h")
+                if (snapshot.value.toString() == "1") {
+                    Log.i("TESTER", "hogaya")
                     routeToGameActivity()
                 }
             }
@@ -156,24 +157,19 @@ class WaitingActivity : AppCompatActivity() {
         backButtonPressedBoolean = false
         goToGameActivityBoolean = false
         goToMainActivityBoolean = false
-        val userId: String? = prefs.getString(getString(R.string.userId), "EMPTY")
-        val useName: String? = prefs.getString(getString(R.string.userName), "EMPTY")
-        if (userId != "EMPTY") {
-            Log.i("###WAITINGACTIVITY","done")
-            database.child("rooms").child(reference).child("Players").child(userId.toString()).setValue(playerInfo(useName,userId))
-        }
+        checkRoomExistOrNot()
     }
 
     override fun onPause() {
         super.onPause()
 
-        if(backButtonPressedBoolean){
+        if (backButtonPressedBoolean) {
             deleteCurrentPlayer()
             deleteCurrentRoomIfNoOtherPlayerRemains()
         }
 
         //called when user cancel/exit the application
-        if(!goToGameActivityBoolean && !goToMainActivityBoolean){
+        if (!goToGameActivityBoolean && !goToMainActivityBoolean) {
             deleteCurrentPlayer()
             deleteCurrentRoomIfNoOtherPlayerRemains()
         }
@@ -185,14 +181,14 @@ class WaitingActivity : AppCompatActivity() {
         routeToMainActivity()
     }
 
-    private fun routeToMainActivity(){
+    private fun routeToMainActivity() {
         goToMainActivityBoolean = true
         goToGameActivityBoolean = false
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
     }
 
-    private fun routeToGameActivity(){
+    private fun routeToGameActivity() {
         goToMainActivityBoolean = false
         goToGameActivityBoolean = true
         val intent = Intent(this, GameActivity::class.java)
@@ -201,7 +197,7 @@ class WaitingActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private fun deleteCurrentPlayer(){
+    private fun deleteCurrentPlayer() {
         val userId: String? = prefs.getString(getString(R.string.userId), "EMPTY")
         if (userId != "EMPTY") {
             database.child("rooms").child(reference).child("Players").child(userId!!)
@@ -209,10 +205,39 @@ class WaitingActivity : AppCompatActivity() {
         }
     }
 
-    private fun deleteCurrentRoomIfNoOtherPlayerRemains(){
-        if(playerCount<=baseCount){
-            Log.i("#########","watingDestroyRoomCalled")
+    private fun deleteCurrentRoomIfNoOtherPlayerRemains() {
+        if (playerCount <= baseCount) {
+            Log.i("#########", "watingDestroyRoomCalled")
             database.child("rooms").child(reference).removeValue()
         }
+    }
+
+    private fun checkRoomExistOrNot() {
+        // room reference
+        val rootRef =
+            database.child("rooms").child(reference)
+
+        // check room exist or not
+        rootRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    // room exist. Add player to the room
+                    val userId: String? = prefs.getString(getString(R.string.userId), "EMPTY")
+                    val useName: String? = prefs.getString(getString(R.string.userName), "EMPTY")
+                    if (userId != "EMPTY") {
+                        Log.i("###WAITINGACTIVITY", "done")
+                        database.child("rooms").child(reference).child("Players")
+                            .child(userId.toString()).setValue(playerInfo(useName, userId))
+                    }
+                } else {
+                    //room doesn't exist. Re-direct to MainActivity.kt
+                    routeToMainActivity()
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+        })
     }
 }
