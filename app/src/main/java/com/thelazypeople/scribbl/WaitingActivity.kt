@@ -29,7 +29,8 @@ class WaitingActivity : AppCompatActivity() {
     private var playersInGame = mutableListOf<playerInfo>()
     private var host=0
     private lateinit var valueEventListenerForGameStarted:ValueEventListener
-    private var goToMainActivityBoolean : Boolean = true
+    private var goToMainActivityBoolean : Boolean = false
+    private var goToGameActivityBoolean : Boolean = false
     private var backButtonPressedBoolean : Boolean = false
 
     var playerCount:Long=0
@@ -153,6 +154,8 @@ class WaitingActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         backButtonPressedBoolean = false
+        goToGameActivityBoolean = false
+        goToMainActivityBoolean = false
         val userId: String? = prefs.getString(getString(R.string.userId), "EMPTY")
         val useName: String? = prefs.getString(getString(R.string.userName), "EMPTY")
         if (userId != "EMPTY") {
@@ -163,16 +166,16 @@ class WaitingActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        val userId: String? = prefs.getString(getString(R.string.userId), "EMPTY")
-        if (userId != "EMPTY") {
-            database.child("rooms").child(reference).child("Players").child(userId!!)
-                .removeValue()
+
+        if(backButtonPressedBoolean){
+            deleteCurrentPlayer()
+            deleteCurrentRoomIfNoOtherPlayerRemains()
         }
-        if(playerCount<=baseCount){
-            database.child("rooms").child(reference).removeValue()
-        }
-        if(!backButtonPressedBoolean) {
-            routeToMainActivity()
+
+        //called when user cancel/exit the application
+        if(!goToGameActivityBoolean && !goToMainActivityBoolean){
+            deleteCurrentPlayer()
+            deleteCurrentRoomIfNoOtherPlayerRemains()
         }
     }
 
@@ -183,17 +186,33 @@ class WaitingActivity : AppCompatActivity() {
     }
 
     private fun routeToMainActivity(){
-        if(goToMainActivityBoolean){
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-        }
+        goToMainActivityBoolean = true
+        goToGameActivityBoolean = false
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
     }
 
     private fun routeToGameActivity(){
         goToMainActivityBoolean = false
+        goToGameActivityBoolean = true
         val intent = Intent(this, GameActivity::class.java)
         intent.putExtra("reference", reference)
         intent.putExtra("host", host)
         startActivity(intent)
+    }
+
+    private fun deleteCurrentPlayer(){
+        val userId: String? = prefs.getString(getString(R.string.userId), "EMPTY")
+        if (userId != "EMPTY") {
+            database.child("rooms").child(reference).child("Players").child(userId!!)
+                .removeValue()
+        }
+    }
+
+    private fun deleteCurrentRoomIfNoOtherPlayerRemains(){
+        if(playerCount<=baseCount){
+            Log.i("#########","watingDestroyRoomCalled")
+            database.child("rooms").child(reference).removeValue()
+        }
     }
 }

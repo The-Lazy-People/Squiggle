@@ -44,7 +44,7 @@ class GameActivity : AppCompatActivity() {
     var playerCount:Long=0
     private lateinit var postRef:DatabaseReference
     private val baseCount:Long=1
-    private var goToMainActivityBoolean : Boolean = true
+    private var goToMainActivityBoolean : Boolean = false
     private var backButtonPressedBoolean : Boolean = false
     private var host=0
 
@@ -306,21 +306,16 @@ class GameActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        val userId: String? = prefs.getString(getString(R.string.userId), "EMPTY")
-        Log.i("counter1",playerCount.toString())
-        if (userId != "EMPTY") {
-            database.child("rooms").child(reference.toString()).child("Players").child(userId!!)
-                .removeValue()
+
+        if(backButtonPressedBoolean){
+            deleteCurrentPlayer()
+            deleteCurrentRoomIfNoOtherPlayerRemains()
         }
-        Log.i("counter2",playerCount.toString())
-        if(playerCount<=baseCount){
-            database.child("rooms").child(reference.toString()).removeValue()
-            database.child("games").child(reference.toString()).removeValue()
-            database.child("drawingData").child(reference.toString()).removeValue()
-        }
-        Log.i("counter3",playerCount.toString())
-        if(!backButtonPressedBoolean) {
-            routeToMainActivity()
+
+        //called when user cancel/exit the application
+        if(!goToMainActivityBoolean){
+            deleteCurrentPlayer()
+            deleteCurrentRoomIfNoOtherPlayerRemains()
         }
 
     }
@@ -328,6 +323,7 @@ class GameActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         backButtonPressedBoolean = false
+        goToMainActivityBoolean = false
         val userId: String? = prefs.getString(getString(R.string.userId), "EMPTY")
         val useName: String? = prefs.getString(getString(R.string.userName), "EMPTY")
         Log.i("#####USER ID", userId)
@@ -344,9 +340,24 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun routeToMainActivity(){
-        if(goToMainActivityBoolean){
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+        goToMainActivityBoolean = true
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun deleteCurrentPlayer(){
+        val userId: String? = prefs.getString(getString(R.string.userId), "EMPTY")
+        if (userId != "EMPTY") {
+            database.child("rooms").child(reference.toString()).child("Players").child(userId!!)
+                .removeValue()
+        }
+    }
+
+    private fun deleteCurrentRoomIfNoOtherPlayerRemains(){
+        if(playerCount<=baseCount){
+            database.child("rooms").child(reference.toString()).removeValue()
+            database.child("games").child(reference.toString()).removeValue()
+            database.child("drawingData").child(reference.toString()).removeValue()
         }
     }
 }
