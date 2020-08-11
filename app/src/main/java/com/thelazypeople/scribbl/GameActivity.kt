@@ -21,6 +21,8 @@ import kotlinx.android.synthetic.main.activity_game.*
 import kotlinx.android.synthetic.main.chats_preview.*
 
 class GameActivity : AppCompatActivity() {
+    private lateinit var paintView: PaintView
+    private var roundTillNow=0
     private lateinit var valueEventListenerForWhoesChance: ValueEventListener
     private lateinit var whoesChanceRef: DatabaseReference
     private var indexOfChance = -1
@@ -47,12 +49,14 @@ class GameActivity : AppCompatActivity() {
     private var goToMainActivityBoolean: Boolean = false
     private var backButtonPressedBoolean: Boolean = false
     private var host = 0
+    var timeLimit:Long=0
+    var noOfRounds=0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
 
-        val paintView = PaintView(this)
+        paintView = PaintView(this)
         main.addView(paintView)
 
         eraser.setOnClickListener {
@@ -141,15 +145,15 @@ class GameActivity : AppCompatActivity() {
                     )
                     if (info.type == 0) {
                         paintView.start(info.pointX, info.pointY)
-                        Toast.makeText(this@GameActivity, "Start", Toast.LENGTH_SHORT).show()
+                        //Toast.makeText(this@GameActivity, "Start", Toast.LENGTH_SHORT).show()
                     } else if (info.type == 2) {
                         paintView.co(info!!.pointX, info.pointY)
                     } else if (info.type == 1) {
                         paintView.end(info!!.pointX, info.pointY)
-                        Toast.makeText(this@GameActivity, "End", Toast.LENGTH_SHORT).show()
+                        //Toast.makeText(this@GameActivity, "End", Toast.LENGTH_SHORT).show()
                     } else if (info.type == 3) {
                         paintView.clear()
-                        Toast.makeText(this@GameActivity, "Clear", Toast.LENGTH_SHORT).show()
+                        //Toast.makeText(this@GameActivity, "Clear", Toast.LENGTH_SHORT).show()
                     }
                 }
 
@@ -246,18 +250,20 @@ class GameActivity : AppCompatActivity() {
                 override fun onCancelled(error: DatabaseError) {
 
                 }
-
                 override fun onDataChange(snapshot: DataSnapshot) {
-
                     if (snapshot.value.toString() == userId) {
                         Toast.makeText(this@GameActivity, "MY CHANCE", Toast.LENGTH_SHORT).show()
+                        uploadToDatabase(userName.trim()+" chance!!")
+                        host=1
+                        paintView.host=1
+                    }
+                    else{
+                        host=0
+                        paintView.host=0
                     }
                 }
-
-
             }
             whoesChanceRef.addValueEventListener(valueEventListenerForWhoesChance)
-
         }
 
         button.setOnClickListener {
@@ -265,7 +271,6 @@ class GameActivity : AppCompatActivity() {
                 Toast.makeText(this, "Empty text", Toast.LENGTH_SHORT).show()
             } else {
                 if (reference != null) {
-
                     uploadToDatabase(editText.text.toString().trim())
                     editText.text.clear()
                     chatAdapter.notifyDataSetChanged()
@@ -275,7 +280,6 @@ class GameActivity : AppCompatActivity() {
                 }
             }
         }
-
     }
 
     private fun changeUserChance() {
@@ -284,13 +288,19 @@ class GameActivity : AppCompatActivity() {
         indexOfChance++
 
         if (indexOfChance >= playersList.size) {
+            roundTillNow++
             indexOfChance = 0
         }
+        paintView.clear()
+        postRef.push().setValue(Information(10001f, 10001f, 3))
+        paintView.isclear = 1
         Log.i("TIMER", "index" + indexOfChance.toString())
         Log.i("TIMER", playersList[indexOfChance].UID)
         database.child("rooms").child(reference.toString()).child("info").child("chanceUID")
             .setValue(playersList[indexOfChance].UID)
-        //countdown(10000)
+        if (roundTillNow<noOfRounds) {
+            countdown(timeLimit)
+        }
     }
 
     private fun countdown(sec: Long) {
