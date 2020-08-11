@@ -24,7 +24,7 @@ class GameActivity : AppCompatActivity() {
     private lateinit var paintView: PaintView
     private var roundTillNow=0
     private lateinit var valueEventListenerForWhoesChance: ValueEventListener
-    private lateinit var whoesChanceRef: DatabaseReference
+    private lateinit var whoseChanceRef: DatabaseReference
     private var indexOfChance = -1
     private lateinit var valueEventListenerForChanceChange: ValueEventListener
     private lateinit var chanceChangeRef: DatabaseReference
@@ -244,7 +244,7 @@ class GameActivity : AppCompatActivity() {
 
             }
             chanceChangeRef.addValueEventListener(valueEventListenerForChanceChange)
-            whoesChanceRef =
+            whoseChanceRef =
                 database.child("rooms").child(reference.toString()).child("info").child("chanceUID")
             valueEventListenerForWhoesChance = object : ValueEventListener {
                 override fun onCancelled(error: DatabaseError) {
@@ -263,7 +263,7 @@ class GameActivity : AppCompatActivity() {
                     }
                 }
             }
-            whoesChanceRef.addValueEventListener(valueEventListenerForWhoesChance)
+            whoseChanceRef.addValueEventListener(valueEventListenerForWhoesChance)
         }
 
         button.setOnClickListener {

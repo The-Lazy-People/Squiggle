@@ -5,6 +5,8 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.Toast
@@ -29,10 +31,14 @@ class WaitingActivity : AppCompatActivity() {
     private lateinit var database: DatabaseReference
     private var playersInGame = mutableListOf<playerInfo>()
     private var host = 0
+    private var noOfRounds : String = ""
+    private var timeLimit : String = ""
     private lateinit var valueEventListenerForGameStarted: ValueEventListener
     private var goToMainActivityBoolean: Boolean = false
     private var goToGameActivityBoolean: Boolean = false
     private var backButtonPressedBoolean: Boolean = false
+    private lateinit var timerSpinner : Spinner
+    private lateinit var roundsSpinner : Spinner
 
     var playerCount: Long = 0
     private val baseCount: Long = 1
@@ -57,27 +63,54 @@ class WaitingActivity : AppCompatActivity() {
             btnStart.isClickable = false
             btnStart.isActivated = false
             btnStart.isEnabled = false
+            rounds_spin.isClickable = false
+            rounds_spin.isActivated = false
+            rounds_spin.isEnabled = false
+            draw_time_spin.isClickable = false
+            draw_time_spin.isActivated = false
+            draw_time_spin.isEnabled = false
         }
 
-
-        val rounds_spin: Spinner = findViewById(R.id.rounds_spin)
+        roundsSpinner = findViewById(R.id.rounds_spin)
         ArrayAdapter.createFromResource(
             this,
             R.array.rounds_array,
             android.R.layout.simple_spinner_item
         ).also { adapter ->
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            rounds_spin.adapter = adapter
+            roundsSpinner.adapter = adapter
         }
 
-        val drawTime_spin: Spinner = findViewById(R.id.draw_time_spin)
+        roundsSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                noOfRounds = resources.getStringArray(R.array.rounds_array)[0]
+            }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                noOfRounds = resources.getStringArray(R.array.rounds_array)[position]
+            }
+
+        }
+
+        timerSpinner = findViewById(R.id.draw_time_spin)
         ArrayAdapter.createFromResource(
             this,
             R.array.draw_time_array,
             android.R.layout.simple_spinner_item
         ).also { adapter ->
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            drawTime_spin.adapter = adapter
+            timerSpinner.adapter = adapter
+        }
+
+        timerSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                timeLimit = resources.getStringArray(R.array.draw_time_array)[0]
+            }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                timeLimit = resources.getStringArray(R.array.draw_time_array)[position]
+            }
+
         }
 
         playerReference = database.child("rooms").child(reference).child("Players")
