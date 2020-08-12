@@ -77,6 +77,9 @@ class GameActivity : AppCompatActivity() {
         val intent: Intent = intent
         reference = intent.getStringExtra("reference")
         serverHost = intent.getIntExtra("host", 0)
+        noOfRounds=intent.getIntExtra("rounds", 0)
+        timeLimit=intent.getLongExtra("countdown", 0)
+        timeLimit=timeLimit*1000
         paintView.end(0f, 0f)
         paintView.getref(reference)
 
@@ -294,12 +297,17 @@ class GameActivity : AppCompatActivity() {
         paintView.clear()
         postRef.push().setValue(Information(10001f, 10001f, 3))
         paintView.isclear = 1
-        Log.i("TIMER", "index" + indexOfChance.toString())
-        Log.i("TIMER", playersList[indexOfChance].UID)
-        database.child("rooms").child(reference.toString()).child("info").child("chanceUID")
-            .setValue(playersList[indexOfChance].UID)
         if (roundTillNow<noOfRounds) {
+            Log.i("TIMER", "index" + indexOfChance.toString())
+            Log.i("TIMER", playersList[indexOfChance].UID)
+            database.child("rooms").child(reference.toString()).child("info").child("chanceUID")
+                .setValue(playersList[indexOfChance].UID)
+            Log.i("TIMER", roundTillNow.toString()+" - "+noOfRounds.toString())
+            Log.i("TIMER", timeLimit.toString())
             countdown(timeLimit)
+        }
+        else{
+            uploadToDatabase("GAME OVER!")
         }
     }
 

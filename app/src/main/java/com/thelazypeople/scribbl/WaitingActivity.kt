@@ -225,8 +225,12 @@ class WaitingActivity : AppCompatActivity() {
         goToMainActivityBoolean = false
         goToGameActivityBoolean = true
         val intent = Intent(this, GameActivity::class.java)
+        var t1=noOfRounds.toInt()
+        var t2=timeLimit.toLong()
         intent.putExtra("reference", reference)
         intent.putExtra("host", host)
+        intent.putExtra("rounds", t1)
+        intent.putExtra("countdown", t2)
         startActivity(intent)
     }
 
