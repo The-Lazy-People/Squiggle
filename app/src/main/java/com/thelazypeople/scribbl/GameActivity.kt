@@ -8,17 +8,20 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.util.Log
 import android.widget.Toast
+import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import com.thelazypeople.scribbl.adapters.ChatAdapter
+import com.thelazypeople.scribbl.adapters.PlayingPlayersAdapter
 import com.thelazypeople.scribbl.model.ChatText
 import com.thelazypeople.scribbl.model.Information
 import com.thelazypeople.scribbl.model.playerInfo
 import kotlinx.android.synthetic.main.activity_game.*
 import kotlinx.android.synthetic.main.chats_preview.*
+import kotlinx.android.synthetic.main.game_content.*
 
 class GameActivity : AppCompatActivity() {
     private lateinit var paintView: PaintView
@@ -66,7 +69,10 @@ class GameActivity : AppCompatActivity() {
                 paintView.isclear = 1
             }
         }
-
+        //Drawer
+        peoples.setOnClickListener {
+            drawerLayout.openDrawer(GravityCompat.START)
+        }
 
 
         prefs = this.getSharedPreferences(
@@ -283,6 +289,11 @@ class GameActivity : AppCompatActivity() {
                 }
             }
         }
+
+        playing_players.layoutManager = LinearLayoutManager(this)
+        val adapter = PlayingPlayersAdapter(playersList)
+        playing_players.adapter = adapter
+        playing_players.invalidate()
     }
 
     private fun changeUserChance() {

@@ -26,4 +26,9 @@
     <string name="error">ERROR</string>
     <string name="userName">userName</string>
     <string name="userNotFoundError">User ID not found Error!</string>
+
+
+    <!--    Toggle buttons of Navigational Drawers-->
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
 </resources>
