@@ -1,12 +1,16 @@
 package com.thelazypeople.scribbl
 
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.util.Log
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -21,6 +25,7 @@ import com.thelazypeople.scribbl.model.Information
 import com.thelazypeople.scribbl.model.playerInfo
 import kotlinx.android.synthetic.main.activity_game.*
 import kotlinx.android.synthetic.main.chats_preview.*
+import kotlinx.android.synthetic.main.choose_word.*
 import kotlinx.android.synthetic.main.game_content.*
 
 class GameActivity : AppCompatActivity() {
@@ -54,6 +59,9 @@ class GameActivity : AppCompatActivity() {
     private var host = 0
     var timeLimit:Long=0
     var noOfRounds=0
+    private lateinit var mDialog:Dialog
+
+    public var wordsCollection = mutableListOf<String>("Adarsh", "Is", "Great", "What", "If", "It", "soes")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,9 +77,15 @@ class GameActivity : AppCompatActivity() {
                 paintView.isclear = 1
             }
         }
+
         //Drawer
         peoples.setOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)
+        }
+
+        //Dialog
+        button2.setOnClickListener {
+            setDialog()
         }
 
 
@@ -88,6 +102,9 @@ class GameActivity : AppCompatActivity() {
         timeLimit=timeLimit*1000
         paintView.end(0f, 0f)
         paintView.getref(reference)
+
+        playing_players.layoutManager = LinearLayoutManager(this)
+
 
 
         val chatAdapter = ChatAdapter(chats = chatsDisplay)
@@ -193,6 +210,8 @@ class GameActivity : AppCompatActivity() {
                     if (playerInfoObj != null) {
                         playersList.add(playerInfoObj)
                         playerCount++
+                        val adapter = PlayingPlayersAdapter(playersList)
+                        playing_players.adapter = adapter
                         for (i in 0..playersList.size - 1) {
                             Log.i("playersadd", playersList[i].Name)
                         }
@@ -224,6 +243,8 @@ class GameActivity : AppCompatActivity() {
                         }
                         playersList = temp
                         playerCount--
+                        val adapter = PlayingPlayersAdapter(playersList)
+                        playing_players.adapter = adapter
                         for (i in 0..playersList.size - 1) {
                             Log.i("playersdel", playersList[i].Name)
                         }
@@ -245,7 +266,7 @@ class GameActivity : AppCompatActivity() {
 
                     if (snapshot.value.toString() == "1") {
                         if (serverHost == 1) {
-                            changeUserChance()
+                           changeUserChance()
                         }
                     }
                 }
@@ -290,10 +311,47 @@ class GameActivity : AppCompatActivity() {
             }
         }
 
-        playing_players.layoutManager = LinearLayoutManager(this)
-        val adapter = PlayingPlayersAdapter(playersList)
-        playing_players.adapter = adapter
-        playing_players.invalidate()
+
+    }
+
+    private fun setDialog() {
+        mDialog = Dialog(this)
+        mDialog.setContentView(R.layout.choose_word)
+        wordsCollection.shuffle()
+        val first = 0
+        val second = 1
+        val third = 2
+
+        for ( i in 0..wordsCollection.size-1){
+            if(i== first)
+                mDialog.word1.setText(wordsCollection[0].toString())
+            else if(i==second)
+                mDialog.word2.setText(wordsCollection[1].toString())
+            else if(i == third)
+                mDialog.word3.setText(wordsCollection[2].toString())
+            else break
+        }
+
+
+        val window = mDialog.window
+        window?.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+        window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        mDialog.setCanceledOnTouchOutside(false) // prevent dialog box from getting dismissed on outside touch
+        mDialog.setCancelable(false)  //prevent dialog box from getting dismissed on back key pressed
+        mDialog.show()
+
+        mDialog.word1.setOnClickListener {
+            Toast.makeText(this,mDialog.word1.text.toString(), Toast.LENGTH_SHORT).show()
+            mDialog.dismiss()
+        }
+        mDialog.word2.setOnClickListener {
+            Toast.makeText(this,mDialog.word2.text.toString(), Toast.LENGTH_SHORT).show()
+            mDialog.dismiss()
+        }
+        mDialog.word3.setOnClickListener {
+            Toast.makeText(this,mDialog.word3.text.toString(), Toast.LENGTH_SHORT).show()
+            mDialog.dismiss()
+        }
     }
 
     private fun changeUserChance() {
@@ -310,7 +368,7 @@ class GameActivity : AppCompatActivity() {
         paintView.isclear = 1
         if (roundTillNow<noOfRounds) {
             Log.i("TIMER", "index" + indexOfChance.toString())
-            Log.i("TIMER", playersList[indexOfChance].UID)
+           Log.i("TIMER", playersList[indexOfChance].UID)
             database.child("rooms").child(reference.toString()).child("info").child("chanceUID")
                 .setValue(playersList[indexOfChance].UID)
             Log.i("TIMER", roundTillNow.toString()+" - "+noOfRounds.toString())
@@ -346,16 +404,17 @@ class GameActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
 
-        if (backButtonPressedBoolean) {
-            deleteCurrentPlayer()
-            deleteCurrentRoomIfNoOtherPlayerRemains()
-        }
+            if (backButtonPressedBoolean) {
+                deleteCurrentPlayer()
+                deleteCurrentRoomIfNoOtherPlayerRemains()
+            }
 
-        //called when user cancel/exit the application
-        if (!goToMainActivityBoolean) {
-            deleteCurrentPlayer()
-            deleteCurrentRoomIfNoOtherPlayerRemains()
-        }
+            //called when user cancel/exit the application
+            if (!goToMainActivityBoolean) {
+                deleteCurrentPlayer()
+                deleteCurrentRoomIfNoOtherPlayerRemains()
+            }
+
 
     }
 
