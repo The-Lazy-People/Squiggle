@@ -29,6 +29,9 @@ import kotlinx.android.synthetic.main.choose_word.*
 import kotlinx.android.synthetic.main.game_content.*
 
 class GameActivity : AppCompatActivity() {
+    private var guessingWord: String=""
+    private lateinit var valueEventListenerForGuessingWord: ValueEventListener
+    private lateinit var guessingWordRef: DatabaseReference
     private lateinit var paintView: PaintView
     private var roundTillNow=0
     private lateinit var valueEventListenerForWhoesChance: ValueEventListener
@@ -61,7 +64,7 @@ class GameActivity : AppCompatActivity() {
     var noOfRounds=0
     private lateinit var mDialog:Dialog
 
-    public var wordsCollection = mutableListOf<String>("Adarsh", "Is", "Great", "What", "If", "It", "soes")
+    public var wordsCollection = mutableListOf<String>("hut","cloud","tent","bus","car","remote","chair","bucket","head","chutiya")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -286,6 +289,7 @@ class GameActivity : AppCompatActivity() {
                         uploadToDatabase(userName.trim()+" chance!!")
                         host=1
                         paintView.host=1
+                        setDialog()
                     }
                     else{
                         host=0
@@ -294,6 +298,24 @@ class GameActivity : AppCompatActivity() {
                 }
             }
             whoseChanceRef.addValueEventListener(valueEventListenerForWhoesChance)
+            var flag=0
+            guessingWordRef =
+                database.child("rooms").child(reference.toString()).child("info").child("wordToGuess")
+            valueEventListenerForGuessingWord = object : ValueEventListener {
+                override fun onCancelled(error: DatabaseError) {
+
+                }
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (flag==0){
+                        flag=1
+                    }
+                    else if (serverHost==1){
+                        countdown(timeLimit)
+                    }
+                    guessingWord=snapshot.value.toString()
+                }
+            }
+            guessingWordRef.addValueEventListener(valueEventListenerForGuessingWord)
         }
 
         button.setOnClickListener {
@@ -301,7 +323,11 @@ class GameActivity : AppCompatActivity() {
                 Toast.makeText(this, "Empty text", Toast.LENGTH_SHORT).show()
             } else {
                 if (reference != null) {
-                    uploadToDatabase(editText.text.toString().trim())
+                    var wordToUpload="word guessed!!"
+                    if (editText.text.toString()!=guessingWord){
+                        wordToUpload=editText.text.toString().trim()
+                    }
+                    uploadToDatabase(wordToUpload)
                     editText.text.clear()
                     chatAdapter.notifyDataSetChanged()
                     chats_recycler.scrollToPosition(chatsDisplay.size - 1)
@@ -342,14 +368,20 @@ class GameActivity : AppCompatActivity() {
 
         mDialog.word1.setOnClickListener {
             Toast.makeText(this,mDialog.word1.text.toString(), Toast.LENGTH_SHORT).show()
+            database.child("rooms").child(reference.toString()).child("info").child("wordToGuess")
+                .setValue(mDialog.word1.text.toString())
             mDialog.dismiss()
         }
         mDialog.word2.setOnClickListener {
             Toast.makeText(this,mDialog.word2.text.toString(), Toast.LENGTH_SHORT).show()
+            database.child("rooms").child(reference.toString()).child("info").child("wordToGuess")
+                .setValue(mDialog.word2.text.toString())
             mDialog.dismiss()
         }
         mDialog.word3.setOnClickListener {
             Toast.makeText(this,mDialog.word3.text.toString(), Toast.LENGTH_SHORT).show()
+            database.child("rooms").child(reference.toString()).child("info").child("wordToGuess")
+                .setValue(mDialog.word3.text.toString())
             mDialog.dismiss()
         }
     }
@@ -373,7 +405,7 @@ class GameActivity : AppCompatActivity() {
                 .setValue(playersList[indexOfChance].UID)
             Log.i("TIMER", roundTillNow.toString()+" - "+noOfRounds.toString())
             Log.i("TIMER", timeLimit.toString())
-            countdown(timeLimit)
+
         }
         else{
             uploadToDatabase("GAME OVER!")
@@ -386,6 +418,7 @@ class GameActivity : AppCompatActivity() {
                 Log.i("TIMER", "Finish")
                 database.child("rooms").child(reference.toString()).child("info")
                     .child("chanceChange").setValue(1)
+                uploadToDatabase("Correct word is - "+guessingWord)
             }
 
             override fun onTick(p0: Long) {
