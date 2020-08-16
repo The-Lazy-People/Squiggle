@@ -103,16 +103,4 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_baseline_group_24" />
 
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="52dp"
-        android:layout_marginTop="13dp"
-        android:layout_marginEnd="50dp"
-        android:text="Button"
-        app:layout_constraintEnd_toStartOf="@+id/paint_brush"
-        app:layout_constraintStart_toEndOf="@+id/peoples"
-        app:layout_constraintTop_toTopOf="parent" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

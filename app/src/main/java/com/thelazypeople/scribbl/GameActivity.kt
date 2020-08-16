@@ -51,7 +51,6 @@ class GameActivity : AppCompatActivity() {
     private lateinit var childEventListenerForGame: ChildEventListener
     var reference: String? = ""
     private var otherUserName: String? = ""
-    private var downloadText: String = ""
     private var playersList = mutableListOf<playerInfo>()
     private var chatsDisplay = mutableListOf<ChatText>()
     var playerCount: Long = 0
@@ -84,11 +83,6 @@ class GameActivity : AppCompatActivity() {
         //Drawer
         peoples.setOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)
-        }
-
-        //Dialog
-        button2.setOnClickListener {
-            setDialog()
         }
 
 
@@ -135,22 +129,16 @@ class GameActivity : AppCompatActivity() {
                         if (textObj.text == "word guessed!!") {
                             for (i in 0..playersList.size-1){
                                 if (playersList[i].UID == textObj.UID) {
-                                    colorProvider[i]=true
+                                    colorProvider[i] = true
                                 }
                             }
                             val adapter = PlayingPlayersAdapter(playersList,colorProvider)
                             playing_players.adapter = adapter
                         }
                         otherUserName = textObj?.userName
-
-                        downloadText += otherUserName + " : " + textObj?.text + "\n"
-                            //textHolder.text =downloadText
-
-                        otherUserName?.let { textObj?.text?.let { it1 -> ChatText(it, it1) } }
-                            ?.let { chatsDisplay.add(it) }
-                            chatAdapter.notifyDataSetChanged()
-                            chats_recycler.scrollToPosition(chatsDisplay.size - 1)
-
+                        chatsDisplay.add(ChatText(textObj?.UID, textObj?.userName, textObj?.text))
+                        chatAdapter.notifyDataSetChanged()
+                        chats_recycler.scrollToPosition(chatsDisplay.size - 1)
                     }
 
                 }
@@ -321,9 +309,8 @@ class GameActivity : AppCompatActivity() {
             guessingWordRef =
                 database.child("rooms").child(reference.toString()).child("info").child("wordToGuess")
             valueEventListenerForGuessingWord = object : ValueEventListener {
-                override fun onCancelled(error: DatabaseError) {
+                override fun onCancelled(error: DatabaseError) {  }
 
-                }
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (flag==0){
                         flag=1
