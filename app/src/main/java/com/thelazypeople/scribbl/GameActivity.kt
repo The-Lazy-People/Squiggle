@@ -62,9 +62,9 @@ class GameActivity : AppCompatActivity() {
     var timeLimit:Long=0
     var noOfRounds=0
     private lateinit var mDialog:Dialog
-    var colorProvider= mutableListOf<Boolean>()
+    var colorProvider= mutableListOf<Boolean>() // colored List of Players for Navigational Drawer
     var wordsCollection = mutableListOf<String>("hut","cloud","tent","bus","car","remote","chair","bucket","head","chutiya")
-
+    var colorSetForChats = mutableSetOf<String>() //contains UID of colored players in Chats.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
@@ -102,9 +102,7 @@ class GameActivity : AppCompatActivity() {
 
         playing_players.layoutManager = LinearLayoutManager(this)
 
-
-
-        val chatAdapter = ChatAdapter(chats = chatsDisplay)
+        val chatAdapter = ChatAdapter(chats = chatsDisplay, colorSet =  colorSetForChats)
         val layoutManager = LinearLayoutManager(this)
         layoutManager.reverseLayout = true
         layoutManager.stackFromEnd = true
@@ -127,6 +125,7 @@ class GameActivity : AppCompatActivity() {
                     val textObj = snapshot.getValue<ChatText>()
                     if (textObj != null) {
                         if (textObj.text == "word guessed!!") {
+                            colorSetForChats.add(textObj.UID)
                             for (i in 0..playersList.size-1){
                                 if (playersList[i].UID == textObj.UID) {
                                     colorProvider[i] = true
@@ -140,7 +139,6 @@ class GameActivity : AppCompatActivity() {
                         chatAdapter.notifyDataSetChanged()
                         chats_recycler.scrollToPosition(chatsDisplay.size - 1)
                     }
-
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -302,6 +300,7 @@ class GameActivity : AppCompatActivity() {
                         val adapter = PlayingPlayersAdapter(playersList,colorProvider)
                         playing_players.adapter = adapter
                     }
+                    colorSetForChats.clear()
                 }
             }
             whoseChanceRef.addValueEventListener(valueEventListenerForWhoesChance)
