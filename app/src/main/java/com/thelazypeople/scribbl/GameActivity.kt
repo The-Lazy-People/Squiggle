@@ -63,8 +63,8 @@ class GameActivity : AppCompatActivity() {
     var timeLimit:Long=0
     var noOfRounds=0
     private lateinit var mDialog:Dialog
-
-    public var wordsCollection = mutableListOf<String>("hut","cloud","tent","bus","car","remote","chair","bucket","head","chutiya")
+    var colorProvider= mutableListOf<Boolean>()
+    var wordsCollection = mutableListOf<String>("hut","cloud","tent","bus","car","remote","chair","bucket","head","chutiya")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -131,15 +131,27 @@ class GameActivity : AppCompatActivity() {
             childEventListenerForChat = object : ChildEventListener {
                 override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                     val textObj = snapshot.getValue<ChatText>()
+                    if (textObj != null) {
+                        if (textObj.text == "word guessed!!") {
+                            for (i in 0..playersList.size-1){
+                                if (playersList[i].UID == textObj.UID) {
+                                    colorProvider[i]=true
+                                }
+                            }
+                            val adapter = PlayingPlayersAdapter(playersList,colorProvider)
+                            playing_players.adapter = adapter
+                        }
+                        otherUserName = textObj?.userName
 
-                    otherUserName = textObj?.userName
-                    downloadText += otherUserName + " : " + textObj?.text + "\n"
-                    //textHolder.text =downloadText
+                        downloadText += otherUserName + " : " + textObj?.text + "\n"
+                            //textHolder.text =downloadText
 
-                    otherUserName?.let { textObj?.text?.let { it1 -> ChatText(it, it1) } }
-                        ?.let { chatsDisplay.add(it) }
-                    chatAdapter.notifyDataSetChanged()
-                    chats_recycler.scrollToPosition(chatsDisplay.size - 1)
+                        otherUserName?.let { textObj?.text?.let { it1 -> ChatText(it, it1) } }
+                            ?.let { chatsDisplay.add(it) }
+                            chatAdapter.notifyDataSetChanged()
+                            chats_recycler.scrollToPosition(chatsDisplay.size - 1)
+
+                    }
 
                 }
 
@@ -212,8 +224,9 @@ class GameActivity : AppCompatActivity() {
                     val playerInfoObj = snapshot.getValue<playerInfo>()
                     if (playerInfoObj != null) {
                         playersList.add(playerInfoObj)
+                        colorProvider.add(false)
                         playerCount++
-                        val adapter = PlayingPlayersAdapter(playersList)
+                        val adapter = PlayingPlayersAdapter(playersList,colorProvider)
                         playing_players.adapter = adapter
                         for (i in 0..playersList.size - 1) {
                             Log.i("playersadd", playersList[i].Name)
@@ -238,15 +251,18 @@ class GameActivity : AppCompatActivity() {
                     val playerInfoObj = snapshot.getValue<playerInfo>()
                     if (playerInfoObj != null) {
                         val temp = mutableListOf<playerInfo>()
+                        val tempColor = mutableListOf<Boolean>()
                         for (i in 0..playersList.size - 1) {
                             if (playersList[i].UID != playerInfoObj.UID) {
                                 temp.add(playersList[i])
+                                tempColor.add(colorProvider[i])
                                 Log.i("AAJAJA", playersList[i].Name)
                             }
                         }
                         playersList = temp
+                        colorProvider=tempColor
                         playerCount--
-                        val adapter = PlayingPlayersAdapter(playersList)
+                        val adapter = PlayingPlayersAdapter(playersList,colorProvider)
                         playing_players.adapter = adapter
                         for (i in 0..playersList.size - 1) {
                             Log.i("playersdel", playersList[i].Name)
@@ -273,8 +289,6 @@ class GameActivity : AppCompatActivity() {
                         }
                     }
                 }
-
-
             }
             chanceChangeRef.addValueEventListener(valueEventListenerForChanceChange)
             whoseChanceRef =
@@ -294,6 +308,11 @@ class GameActivity : AppCompatActivity() {
                     else{
                         host=0
                         paintView.host=0
+                    }
+                    for (i in 0..colorProvider.size-1){
+                        colorProvider[i]=false
+                        val adapter = PlayingPlayersAdapter(playersList,colorProvider)
+                        playing_players.adapter = adapter
                     }
                 }
             }
@@ -316,6 +335,7 @@ class GameActivity : AppCompatActivity() {
                 }
             }
             guessingWordRef.addValueEventListener(valueEventListenerForGuessingWord)
+
         }
 
         button.setOnClickListener {
@@ -326,6 +346,9 @@ class GameActivity : AppCompatActivity() {
                     var wordToUpload="word guessed!!"
                     if (editText.text.toString()!=guessingWord){
                         wordToUpload=editText.text.toString().trim()
+                    }
+                    if (editText.text.toString()=="word guessed!!"){
+                        wordToUpload="word guessed!"
                     }
                     uploadToDatabase(wordToUpload)
                     editText.text.clear()
@@ -400,7 +423,7 @@ class GameActivity : AppCompatActivity() {
         paintView.isclear = 1
         if (roundTillNow<noOfRounds) {
             Log.i("TIMER", "index" + indexOfChance.toString())
-           Log.i("TIMER", playersList[indexOfChance].UID)
+            Log.i("TIMER", playersList[indexOfChance].UID)
             database.child("rooms").child(reference.toString()).child("info").child("chanceUID")
                 .setValue(playersList[indexOfChance].UID)
             Log.i("TIMER", roundTillNow.toString()+" - "+noOfRounds.toString())
@@ -409,11 +432,11 @@ class GameActivity : AppCompatActivity() {
         }
         else{
             uploadToDatabase("GAME OVER!")
+
         }
     }
-
     private fun countdown(sec: Long) {
-        var countdown_timer = object : CountDownTimer(sec, 1000) {
+        var countdownTimer = object : CountDownTimer(sec, 1000) {
             override fun onFinish() {
                 Log.i("TIMER", "Finish")
                 database.child("rooms").child(reference.toString()).child("info")
@@ -425,12 +448,11 @@ class GameActivity : AppCompatActivity() {
                 Log.i("TIMER", (p0 / 1000).toString())
             }
         }
-        countdown_timer.start()
+        countdownTimer.start()
     }
 
     private fun uploadToDatabase(cur_text: String) {
-        val userName: String? = prefs.getString(getString(R.string.userName), "EMPTY")
-        val textObj = ChatText(userName!!, cur_text)
+        val textObj = ChatText(userId,userName, cur_text)
         postReference.push().setValue(textObj)
     }
 
