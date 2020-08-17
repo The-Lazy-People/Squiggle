@@ -29,6 +29,9 @@ import kotlinx.android.synthetic.main.choose_word.*
 import kotlinx.android.synthetic.main.game_content.*
 
 class GameActivity : AppCompatActivity() {
+    private var wordGuessedOrNot: Boolean=false
+    private lateinit var countdownTimer: CountDownTimer
+    var booleanForCountdownStartedOrNot:Boolean= false
     private var guessingWord: String = ""
     private lateinit var valueEventListenerForGuessingWord: ValueEventListener
     private lateinit var guessingWordRef: DatabaseReference
@@ -65,136 +68,7 @@ class GameActivity : AppCompatActivity() {
     private lateinit var mDialog: Dialog
     var colorProvider = mutableListOf<Boolean>() // colored List of Players for Navigational Drawer
 
-    private var wordsCollection = mutableListOf<String>(
-        "hallucinate",
-        "human",
-        "hurdle",
-        "hut",
-        "horn",
-        "ice",
-        "ice cream",
-        "igloo",
-        "infant",
-        "insect",
-        "jug",
-        "jacket",
-        "jewelry",
-        "jar",
-        "jungle",
-        "kitten",
-        "kangaroo",
-        "kite",
-        "kiss",
-        "lady",
-        "love",
-        "log",
-        "leg",
-        "lake",
-        "lane",
-        "moon",
-        "mouse",
-        "milk",
-        "mail",
-        "mother",
-        "money",
-        "manuscript",
-        "notes",
-        "necklace",
-        "nut",
-        "nurse",
-        "night",
-        "nail",
-        "tent",
-        "Touchy",
-        "Tourism",
-        "Table",
-        "TableCloth",
-        "Technological",
-        "Transparent",
-        "Transmitter",
-        "Saint",
-        "Sadly",
-        "Salt",
-        "Safe House",
-        "ufo",
-        "unfit",
-        "upset",
-        "Uganda",
-        "unisex",
-        "unique",
-        "vase",
-        "vivid",
-        "vocabulary",
-        "vow",
-        "vaporize",
-        "victim",
-        "visualizer",
-        "vaccine",
-        "win",
-        "waxing",
-        "wig",
-        "wink",
-        "whip",
-        "work",
-        "weapon",
-        "witch",
-        "whiskey",
-        "york",
-        "yacht",
-        "yesterday",
-        "zipped",
-        "zebra",
-        "zigzag",
-        "Apple",
-        "Aeroplane",
-        "Acne",
-        "Address" ,
-        "Ambulance",
-        "Anchor",
-        "Bench",
-        "Banana",
-        "Balloon",
-        "Boat",
-        "Bomb blast",
-        "Breakup",
-        "Cat",
-        "Cardboard",
-        "Chess",
-        "Cafe",
-        "Cold drink",
-        "Cricket",
-        "Dog food",
-        "Dress",
-        "Dancer",
-        "Darkness",
-        "Daydream",
-        "Driver",
-        "Depth",
-        "Elephant",
-        "Ellipse",
-        "Earthworm",
-        "Elbow",
-        "Employ",
-        "Equator",
-        "Exercise",
-        "Eraser",
-        "Earth",
-        "Forest",
-        "Fog",
-        "Fat",
-        "Fabric",
-        "Frame",
-        "Foot",
-        "Fan",
-        "Fire",
-        "Gun",
-        "Greeting card",
-        "Garden",
-        "Ghost",
-        "Gift",
-        "Globe",
-        "Guitar"
-    )
+    var wordsCollection = WordCollectionData().wordsCollection
 
     var colorSetForChats = mutableSetOf<String>() //contains UID of colored players in Chats.
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -434,6 +308,7 @@ class GameActivity : AppCompatActivity() {
                         val adapter = PlayingPlayersAdapter(playersList, colorProvider)
                         playing_players.adapter = adapter
                     }
+                    wordGuessedOrNot=false
                     colorSetForChats.clear()
                 }
             }
@@ -464,7 +339,7 @@ class GameActivity : AppCompatActivity() {
             } else {
                 if (reference != null) {
                     var wordToUpload = "word guessed!!"
-                    if (editText.text.toString() != guessingWord) {
+                    if (editText.text.toString().toLowerCase() != guessingWord.toLowerCase() || host==1 || wordGuessedOrNot==true) {
                         wordToUpload = editText.text.toString().trim()
                     } else {
                         var curScore = prefs.getInt(getString(R.string.scoreOfCurPlayer), 0)
@@ -472,6 +347,7 @@ class GameActivity : AppCompatActivity() {
                         database.child("rooms").child(reference.toString()).child("Players")
                             .child(userId).child("score").setValue(curScore)
                         prefs.edit().putInt(getString(R.string.scoreOfCurPlayer), curScore).apply()
+                        wordGuessedOrNot=true
                     }
                     if (editText.text.toString() == "word guessed!!") {
                         wordToUpload = "word guessed!"
@@ -565,7 +441,7 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun countdown(sec: Long) {
-        var countdownTimer = object : CountDownTimer(sec, 1000) {
+        countdownTimer = object : CountDownTimer(sec, 1000) {
             override fun onFinish() {
                 Log.i("TIMER", "Finish")
                 database.child("rooms").child(reference.toString()).child("info")
@@ -578,6 +454,7 @@ class GameActivity : AppCompatActivity() {
             }
         }
         countdownTimer.start()
+        booleanForCountdownStartedOrNot=true
     }
 
     private fun uploadToDatabase(cur_text: String) {
@@ -591,6 +468,8 @@ class GameActivity : AppCompatActivity() {
         if (backButtonPressedBoolean) {
             deleteCurrentPlayer()
             deleteCurrentRoomIfNoOtherPlayerRemains()
+            if (booleanForCountdownStartedOrNot==true)
+                countdownTimer.cancel()
         }
 
         //called when user cancel/exit the application
