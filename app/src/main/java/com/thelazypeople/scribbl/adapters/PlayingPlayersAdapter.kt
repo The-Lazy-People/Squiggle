@@ -28,6 +28,7 @@ class PlayingPlayersAdapter (
         if(colorProvider[position]) {
             holder.itemView.name_each_player.setBackgroundColor(Color.GREEN)
         }
+        holder.itemView.score_each_player.text = players[position].score.toString()
     }
 
 }

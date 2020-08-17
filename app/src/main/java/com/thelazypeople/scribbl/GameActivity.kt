@@ -64,6 +64,7 @@ class GameActivity : AppCompatActivity() {
     val fixedScore = 10
     private lateinit var mDialog: Dialog
     var colorProvider = mutableListOf<Boolean>() // colored List of Players for Navigational Drawer
+
     var wordsCollection = mutableListOf<String>(
         "hut",
         "cloud",
@@ -73,8 +74,49 @@ class GameActivity : AppCompatActivity() {
         "remote",
         "chair",
         "bucket",
-        "head"
+        "head",
+        "Touchy",
+        "Tourism",
+        "Table",
+        "TableCloth",
+        "Technological",
+        "Transparent",
+        "Transmitter",
+        "Saint",
+        "Sadly",
+        "Salt",
+        "Safe House",
+        "ufo",
+        "unfit",
+        "upset",
+        "Uganda",
+        "unisex",
+        "unique",
+        "vase",
+        "vivid",
+        "vocabulary",
+        "vow",
+        "vaporize",
+        "victim",
+        "visualizer",
+        "vaccine",
+        "win",
+        "waxing",
+        "wig",
+        "wink",
+        "whip",
+        "work",
+        "weapon",
+        "witch",
+        "whiskey",
+        "york",
+        "yacht",
+        "yesterday",
+        "zipped",
+        "zebra",
+        "zigzag"
     )
+
     var colorSetForChats = mutableSetOf<String>() //contains UID of colored players in Chats.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -231,18 +273,19 @@ class GameActivity : AppCompatActivity() {
                         }
                     }
                 }
-
                 override fun onCancelled(error: DatabaseError) {
                     // not needed
                 }
-
                 override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
                     // not needed
                 }
-
                 override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
                     val playerInfoObj = snapshot.getValue<playerInfo>()
-                    Log.i("#####INFO" , playerInfoObj?.Name.toString() + playerInfoObj?.score.toString())
+                    for(i in 0..playersList.size-1){
+                        if(playerInfoObj?.UID.toString() == playersList[i].UID){
+                            playersList[i].score += playerInfoObj!!.score
+                        }
+                    }
                 }
 
                 override fun onChildRemoved(snapshot: DataSnapshot) {
