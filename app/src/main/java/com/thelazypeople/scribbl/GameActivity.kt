@@ -65,16 +65,46 @@ class GameActivity : AppCompatActivity() {
     private lateinit var mDialog: Dialog
     var colorProvider = mutableListOf<Boolean>() // colored List of Players for Navigational Drawer
 
-    var wordsCollection = mutableListOf<String>(
+    private var wordsCollection = mutableListOf<String>(
+        "hallucinate",
+        "human",
+        "hurdle",
         "hut",
-        "cloud",
+        "horn",
+        "ice",
+        "ice cream",
+        "igloo",
+        "infant",
+        "insect",
+        "jug",
+        "jacket",
+        "jewelry",
+        "jar",
+        "jungle",
+        "kitten",
+        "kangaroo",
+        "kite",
+        "kiss",
+        "lady",
+        "love",
+        "log",
+        "leg",
+        "lake",
+        "lane",
+        "moon",
+        "mouse",
+        "milk",
+        "mail",
+        "mother",
+        "money",
+        "manuscript",
+        "notes",
+        "necklace",
+        "nut",
+        "nurse",
+        "night",
+        "nail",
         "tent",
-        "bus",
-        "car",
-        "remote",
-        "chair",
-        "bucket",
-        "head",
         "Touchy",
         "Tourism",
         "Table",
@@ -283,7 +313,7 @@ class GameActivity : AppCompatActivity() {
                     val playerInfoObj = snapshot.getValue<playerInfo>()
                     for(i in 0..playersList.size-1){
                         if(playerInfoObj?.UID.toString() == playersList[i].UID){
-                            playersList[i].score += playerInfoObj!!.score
+                            playersList[i].score = playerInfoObj!!.score
                         }
                     }
                 }
