@@ -136,7 +136,7 @@ class RoomListActivity : AppCompatActivity() {
         if (userId != "EMPTY") {
             database.reference.child("rooms").child(roomList[position].reference).child("Players")
                 .child(userId.toString()).setValue(
-                playerInfo(userName, userId)
+                playerInfo( userName, 0, userId)
             )
             val intent = Intent(this, WaitingActivity::class.java)
             intent.putExtra("reference", roomList[position].reference)

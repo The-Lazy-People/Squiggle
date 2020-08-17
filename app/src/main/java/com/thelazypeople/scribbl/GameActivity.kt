@@ -29,11 +29,11 @@ import kotlinx.android.synthetic.main.choose_word.*
 import kotlinx.android.synthetic.main.game_content.*
 
 class GameActivity : AppCompatActivity() {
-    private var guessingWord: String=""
+    private var guessingWord: String = ""
     private lateinit var valueEventListenerForGuessingWord: ValueEventListener
     private lateinit var guessingWordRef: DatabaseReference
     private lateinit var paintView: PaintView
-    private var roundTillNow=0
+    private var roundTillNow = 0
     private lateinit var valueEventListenerForWhoesChance: ValueEventListener
     private lateinit var whoseChanceRef: DatabaseReference
     private var indexOfChance = -1
@@ -59,11 +59,22 @@ class GameActivity : AppCompatActivity() {
     private var goToMainActivityBoolean: Boolean = false
     private var backButtonPressedBoolean: Boolean = false
     private var host = 0
-    var timeLimit:Long=0
-    var noOfRounds=0
-    private lateinit var mDialog:Dialog
-    var colorProvider= mutableListOf<Boolean>() // colored List of Players for Navigational Drawer
-    var wordsCollection = mutableListOf<String>("hut","cloud","tent","bus","car","remote","chair","bucket","head","chutiya")
+    var timeLimit: Long = 0
+    var noOfRounds = 0
+    val fixedScore = 10
+    private lateinit var mDialog: Dialog
+    var colorProvider = mutableListOf<Boolean>() // colored List of Players for Navigational Drawer
+    var wordsCollection = mutableListOf<String>(
+        "hut",
+        "cloud",
+        "tent",
+        "bus",
+        "car",
+        "remote",
+        "chair",
+        "bucket",
+        "head"
+    )
     var colorSetForChats = mutableSetOf<String>() //contains UID of colored players in Chats.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,20 +100,21 @@ class GameActivity : AppCompatActivity() {
         prefs = this.getSharedPreferences(
             getString(R.string.packageName), Context.MODE_PRIVATE
         )
+        prefs.edit().putInt(getString(R.string.scoreOfCurPlayer), 0).apply()
         userId = prefs.getString(getString(R.string.userId), "EMPTY")!!
         userName = prefs.getString(getString(R.string.userName), "EMPTY")!!
         val intent: Intent = intent
         reference = intent.getStringExtra("reference")
         serverHost = intent.getIntExtra("host", 0)
-        noOfRounds=intent.getIntExtra("rounds", 0)
-        timeLimit=intent.getLongExtra("countdown", 0)
-        timeLimit=timeLimit*1000
+        noOfRounds = intent.getIntExtra("rounds", 0)
+        timeLimit = intent.getLongExtra("countdown", 0)
+        timeLimit *= 1000
         paintView.end(0f, 0f)
         paintView.getref(reference)
 
         playing_players.layoutManager = LinearLayoutManager(this)
 
-        val chatAdapter = ChatAdapter(chats = chatsDisplay, colorSet =  colorSetForChats)
+        val chatAdapter = ChatAdapter(chats = chatsDisplay, colorSet = colorSetForChats)
         val layoutManager = LinearLayoutManager(this)
         layoutManager.reverseLayout = true
         layoutManager.stackFromEnd = true
@@ -126,12 +138,12 @@ class GameActivity : AppCompatActivity() {
                     if (textObj != null) {
                         if (textObj.text == "word guessed!!") {
                             colorSetForChats.add(textObj.UID)
-                            for (i in 0..playersList.size-1){
+                            for (i in 0..playersList.size - 1) {
                                 if (playersList[i].UID == textObj.UID) {
                                     colorProvider[i] = true
                                 }
                             }
-                            val adapter = PlayingPlayersAdapter(playersList,colorProvider)
+                            val adapter = PlayingPlayersAdapter(playersList, colorProvider)
                             playing_players.adapter = adapter
                         }
                         otherUserName = textObj?.userName
@@ -212,7 +224,7 @@ class GameActivity : AppCompatActivity() {
                         playersList.add(playerInfoObj)
                         colorProvider.add(false)
                         playerCount++
-                        val adapter = PlayingPlayersAdapter(playersList,colorProvider)
+                        val adapter = PlayingPlayersAdapter(playersList, colorProvider)
                         playing_players.adapter = adapter
                         for (i in 0..playersList.size - 1) {
                             Log.i("playersadd", playersList[i].Name)
@@ -229,8 +241,8 @@ class GameActivity : AppCompatActivity() {
                 }
 
                 override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
-                    // not needed
-
+                    val playerInfoObj = snapshot.getValue<playerInfo>()
+                    Log.i("#####INFO" , playerInfoObj?.Name.toString() + playerInfoObj?.score.toString())
                 }
 
                 override fun onChildRemoved(snapshot: DataSnapshot) {
@@ -246,9 +258,9 @@ class GameActivity : AppCompatActivity() {
                             }
                         }
                         playersList = temp
-                        colorProvider=tempColor
+                        colorProvider = tempColor
                         playerCount--
-                        val adapter = PlayingPlayersAdapter(playersList,colorProvider)
+                        val adapter = PlayingPlayersAdapter(playersList, colorProvider)
                         playing_players.adapter = adapter
                         for (i in 0..playersList.size - 1) {
                             Log.i("playersdel", playersList[i].Name)
@@ -271,7 +283,7 @@ class GameActivity : AppCompatActivity() {
 
                     if (snapshot.value.toString() == "1") {
                         if (serverHost == 1) {
-                           changeUserChance()
+                            changeUserChance()
                         }
                     }
                 }
@@ -283,41 +295,41 @@ class GameActivity : AppCompatActivity() {
                 override fun onCancelled(error: DatabaseError) {
 
                 }
+
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.value.toString() == userId) {
                         Toast.makeText(this@GameActivity, "MY CHANCE", Toast.LENGTH_SHORT).show()
-                        uploadToDatabase(userName.trim()+" chance!!")
-                        host=1
-                        paintView.host=1
+                        uploadToDatabase(userName.trim() + " chance!!")
+                        host = 1
+                        paintView.host = 1
                         setDialog()
+                    } else {
+                        host = 0
+                        paintView.host = 0
                     }
-                    else{
-                        host=0
-                        paintView.host=0
-                    }
-                    for (i in 0..colorProvider.size-1){
-                        colorProvider[i]=false
-                        val adapter = PlayingPlayersAdapter(playersList,colorProvider)
+                    for (i in 0..colorProvider.size - 1) {
+                        colorProvider[i] = false
+                        val adapter = PlayingPlayersAdapter(playersList, colorProvider)
                         playing_players.adapter = adapter
                     }
                     colorSetForChats.clear()
                 }
             }
             whoseChanceRef.addValueEventListener(valueEventListenerForWhoesChance)
-            var flag=0
+            var flag = 0
             guessingWordRef =
-                database.child("rooms").child(reference.toString()).child("info").child("wordToGuess")
+                database.child("rooms").child(reference.toString()).child("info")
+                    .child("wordToGuess")
             valueEventListenerForGuessingWord = object : ValueEventListener {
-                override fun onCancelled(error: DatabaseError) {  }
+                override fun onCancelled(error: DatabaseError) {}
 
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    if (flag==0){
-                        flag=1
-                    }
-                    else if (serverHost==1){
+                    if (flag == 0) {
+                        flag = 1
+                    } else if (serverHost == 1) {
                         countdown(timeLimit)
                     }
-                    guessingWord=snapshot.value.toString()
+                    guessingWord = snapshot.value.toString()
                 }
             }
             guessingWordRef.addValueEventListener(valueEventListenerForGuessingWord)
@@ -329,12 +341,18 @@ class GameActivity : AppCompatActivity() {
                 Toast.makeText(this, "Empty text", Toast.LENGTH_SHORT).show()
             } else {
                 if (reference != null) {
-                    var wordToUpload="word guessed!!"
-                    if (editText.text.toString()!=guessingWord){
-                        wordToUpload=editText.text.toString().trim()
+                    var wordToUpload = "word guessed!!"
+                    if (editText.text.toString() != guessingWord) {
+                        wordToUpload = editText.text.toString().trim()
+                    } else {
+                        var curScore = prefs.getInt(getString(R.string.scoreOfCurPlayer), 0)
+                        curScore += fixedScore
+                        database.child("rooms").child(reference.toString()).child("Players")
+                            .child(userId).child("score").setValue(curScore)
+                        prefs.edit().putInt(getString(R.string.scoreOfCurPlayer), curScore).apply()
                     }
-                    if (editText.text.toString()=="word guessed!!"){
-                        wordToUpload="word guessed!"
+                    if (editText.text.toString() == "word guessed!!") {
+                        wordToUpload = "word guessed!"
                     }
                     uploadToDatabase(wordToUpload)
                     editText.text.clear()
@@ -357,38 +375,41 @@ class GameActivity : AppCompatActivity() {
         val second = 1
         val third = 2
 
-        for ( i in 0..wordsCollection.size-1){
-            if(i== first)
-                mDialog.word1.setText(wordsCollection[0].toString())
-            else if(i==second)
-                mDialog.word2.setText(wordsCollection[1].toString())
-            else if(i == third)
-                mDialog.word3.setText(wordsCollection[2].toString())
+        for (i in 0 until wordsCollection.size) {
+            if (i == first)
+                mDialog.word1.text = wordsCollection[0]
+            else if (i == second)
+                mDialog.word2.text = wordsCollection[1]
+            else if (i == third)
+                mDialog.word3.text = wordsCollection[2]
             else break
         }
 
 
         val window = mDialog.window
-        window?.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+        window?.setLayout(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.WRAP_CONTENT
+        );
         window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         mDialog.setCanceledOnTouchOutside(false) // prevent dialog box from getting dismissed on outside touch
         mDialog.setCancelable(false)  //prevent dialog box from getting dismissed on back key pressed
         mDialog.show()
 
         mDialog.word1.setOnClickListener {
-            Toast.makeText(this,mDialog.word1.text.toString(), Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, mDialog.word1.text.toString(), Toast.LENGTH_SHORT).show()
             database.child("rooms").child(reference.toString()).child("info").child("wordToGuess")
                 .setValue(mDialog.word1.text.toString())
             mDialog.dismiss()
         }
         mDialog.word2.setOnClickListener {
-            Toast.makeText(this,mDialog.word2.text.toString(), Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, mDialog.word2.text.toString(), Toast.LENGTH_SHORT).show()
             database.child("rooms").child(reference.toString()).child("info").child("wordToGuess")
                 .setValue(mDialog.word2.text.toString())
             mDialog.dismiss()
         }
         mDialog.word3.setOnClickListener {
-            Toast.makeText(this,mDialog.word3.text.toString(), Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, mDialog.word3.text.toString(), Toast.LENGTH_SHORT).show()
             database.child("rooms").child(reference.toString()).child("info").child("wordToGuess")
                 .setValue(mDialog.word3.text.toString())
             mDialog.dismiss()
@@ -407,27 +428,27 @@ class GameActivity : AppCompatActivity() {
         paintView.clear()
         postRef.push().setValue(Information(10001f, 10001f, 3))
         paintView.isclear = 1
-        if (roundTillNow<noOfRounds) {
+        if (roundTillNow < noOfRounds) {
             Log.i("TIMER", "index" + indexOfChance.toString())
             Log.i("TIMER", playersList[indexOfChance].UID)
             database.child("rooms").child(reference.toString()).child("info").child("chanceUID")
                 .setValue(playersList[indexOfChance].UID)
-            Log.i("TIMER", roundTillNow.toString()+" - "+noOfRounds.toString())
+            Log.i("TIMER", "$roundTillNow - $noOfRounds")
             Log.i("TIMER", timeLimit.toString())
 
-        }
-        else{
+        } else {
             uploadToDatabase("GAME OVER!")
 
         }
     }
+
     private fun countdown(sec: Long) {
         var countdownTimer = object : CountDownTimer(sec, 1000) {
             override fun onFinish() {
                 Log.i("TIMER", "Finish")
                 database.child("rooms").child(reference.toString()).child("info")
                     .child("chanceChange").setValue(1)
-                uploadToDatabase("Correct word is - "+guessingWord)
+                uploadToDatabase("Correct word is - $guessingWord")
             }
 
             override fun onTick(p0: Long) {
@@ -438,23 +459,23 @@ class GameActivity : AppCompatActivity() {
     }
 
     private fun uploadToDatabase(cur_text: String) {
-        val textObj = ChatText(userId,userName, cur_text)
+        val textObj = ChatText(userId, userName, cur_text)
         postReference.push().setValue(textObj)
     }
 
     override fun onPause() {
         super.onPause()
 
-            if (backButtonPressedBoolean) {
-                deleteCurrentPlayer()
-                deleteCurrentRoomIfNoOtherPlayerRemains()
-            }
+        if (backButtonPressedBoolean) {
+            deleteCurrentPlayer()
+            deleteCurrentRoomIfNoOtherPlayerRemains()
+        }
 
-            //called when user cancel/exit the application
-            if (!goToMainActivityBoolean) {
-                deleteCurrentPlayer()
-                deleteCurrentRoomIfNoOtherPlayerRemains()
-            }
+        //called when user cancel/exit the application
+        if (!goToMainActivityBoolean) {
+            deleteCurrentPlayer()
+            deleteCurrentRoomIfNoOtherPlayerRemains()
+        }
 
 
     }
@@ -505,11 +526,11 @@ class GameActivity : AppCompatActivity() {
                 if (snapshot.exists()) {
                     // room exist. Add player to the room
                     val userId: String? = prefs.getString(getString(R.string.userId), "EMPTY")
-                    val useName: String? = prefs.getString(getString(R.string.userName), "EMPTY")
+                    val userName: String? = prefs.getString(getString(R.string.userName), "EMPTY")
                     if (userId != "EMPTY") {
                         Log.i("###WAITINGACTIVITY", "done")
                         database.child("rooms").child(reference.toString()).child("Players")
-                            .child(userId.toString()).setValue(playerInfo(useName, userId))
+                            .child(userId.toString()).setValue(playerInfo(userName, 0, userId))
                     }
                 } else {
                     //room doesn't exist. Re-direct to MainActivity.kt

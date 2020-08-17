@@ -112,7 +112,7 @@ class MainActivity : AppCompatActivity() {
         val roomInfo = roomInfo(gameStarted, password, referenceUuidPlusTimestamp, roomname)
         roomReference.child(referenceUuidPlusTimestamp).child("info").setValue(roomInfo)
         roomReference.child(referenceUuidPlusTimestamp).child("Players")
-            .child(userId).setValue(playerInfo(userName, userId))
+            .child(userId).setValue(playerInfo( userName, 0, userId))
         roomReference.child(referenceUuidPlusTimestamp).child("server").setValue(userId)
     }
 }

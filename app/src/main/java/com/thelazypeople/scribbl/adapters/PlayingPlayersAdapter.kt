@@ -25,7 +25,7 @@ class PlayingPlayersAdapter (
 
     override fun onBindViewHolder(holder: PlayingPlayersViewHolder, position: Int) {
         holder.itemView.name_each_player.text = players[position].Name
-        if(colorProvider[position]==true) {
+        if(colorProvider[position]) {
             holder.itemView.name_each_player.setBackgroundColor(Color.GREEN)
         }
     }

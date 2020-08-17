@@ -260,11 +260,11 @@ class WaitingActivity : AppCompatActivity() {
                 if (snapshot.exists()) {
                     // room exist. Add player to the room
                     val userId: String? = prefs.getString(getString(R.string.userId), "EMPTY")
-                    val useName: String? = prefs.getString(getString(R.string.userName), "EMPTY")
+                    val userName: String? = prefs.getString(getString(R.string.userName), "EMPTY")
                     if (userId != "EMPTY") {
                         Log.i("###WAITINGACTIVITY", "done")
                         database.child("rooms").child(reference).child("Players")
-                            .child(userId.toString()).setValue(playerInfo(useName, userId))
+                            .child(userId.toString()).setValue(playerInfo( userName, 0, userId))
                     }
                 } else {
                     //room doesn't exist. Re-direct to MainActivity.kt
