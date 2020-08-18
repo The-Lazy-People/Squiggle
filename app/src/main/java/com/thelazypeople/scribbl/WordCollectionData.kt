@@ -2,6 +2,23 @@ package com.thelazypeople.scribbl
 
 class WordCollectionData {
     var wordsCollection = mutableListOf<String>(
+        "outside",
+        "outer",
+        "oatmeal",
+        "objective",
+        "palindrome",
+        "pancake",
+        "parameter",
+        "protocol",
+        "quadrant",
+        "quarantine",
+        "quit",
+        "rabbit",
+        "racket",
+        "rocket",
+        "race",
+        "rider",
+        "report",
         "hallucinate",
         "human",
         "hurdle",
