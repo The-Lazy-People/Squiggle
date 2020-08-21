@@ -4,9 +4,9 @@
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
+    <!--    General Strings -->
     <string name="email">Email Id</string>
     <string name="password">Password</string>
-
     <string name="createRoomText">CREATE ROOM</string>
     <string name="joinRoomText">JOIN ROOM</string>
     <string name="closedRoomText">Closed room (Password protected)</string>
@@ -20,16 +20,21 @@
     <string name="RoomName">Room Name</string>
     <string name="roomCreated">Room Created!</string>
     <string name="fieldEmpty">No field should remain empty!</string>
-
     <string name="packageName">com.thelazypeople.scribbl</string>
     <string name="userId">UserID</string>
     <string name="error">ERROR</string>
+    <string name="EMPTY">EMPTY</string>
     <string name="userName">userName</string>
     <string name="userNotFoundError">User ID not found Error!</string>
 
-
-    <!--    Toggle buttons of Navigational Drawers-->
+    <!--    Toggle buttons of Navigational Drawers -->
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="scoreOfCurPlayer">scoreOfCurPlayer</string>
+
+    <!--    Sign In and Sign Up Fragment -->
+    <string name="enterNickname">Please enter the NickName</string>
+    <string name="enterEmail">Please enter the Email</string>
+    <string name="passwordLengthSmall">Length greater than 5</string>
+    <string name="authFailed">Authentication failed</string>
 </resources>
