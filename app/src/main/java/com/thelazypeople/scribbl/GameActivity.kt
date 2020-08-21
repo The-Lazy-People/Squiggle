@@ -29,9 +29,9 @@ import kotlinx.android.synthetic.main.choose_word.*
 import kotlinx.android.synthetic.main.game_content.*
 
 class GameActivity : AppCompatActivity() {
-    private var wordGuessedOrNot: Boolean=false
+    private var wordGuessedOrNot: Boolean = false
     private lateinit var countdownTimer: CountDownTimer
-    var booleanForCountdownStartedOrNot:Boolean= false
+    var booleanForCountdownStartedOrNot: Boolean = false
     private var guessingWord: String = ""
     private lateinit var valueEventListenerForGuessingWord: ValueEventListener
     private lateinit var guessingWordRef: DatabaseReference
@@ -226,16 +226,19 @@ class GameActivity : AppCompatActivity() {
                         }
                     }
                 }
+
                 override fun onCancelled(error: DatabaseError) {
                     // not needed
                 }
+
                 override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
                     // not needed
                 }
+
                 override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
                     val playerInfoObj = snapshot.getValue<playerInfo>()
-                    for(i in 0..playersList.size-1){
-                        if(playerInfoObj?.UID.toString() == playersList[i].UID){
+                    for (i in 0..playersList.size - 1) {
+                        if (playerInfoObj?.UID.toString() == playersList[i].UID) {
                             playersList[i].score = playerInfoObj!!.score
                         }
                     }
@@ -308,7 +311,7 @@ class GameActivity : AppCompatActivity() {
                         val adapter = PlayingPlayersAdapter(playersList, colorProvider)
                         playing_players.adapter = adapter
                     }
-                    wordGuessedOrNot=false
+                    wordGuessedOrNot = false
                     colorSetForChats.clear()
                 }
             }
@@ -339,7 +342,9 @@ class GameActivity : AppCompatActivity() {
             } else {
                 if (reference != null) {
                     var wordToUpload = "word guessed!!"
-                    if (editText.text.toString().toLowerCase() != guessingWord.toLowerCase() || host==1 || wordGuessedOrNot==true) {
+                    if (editText.text.toString()
+                            .toLowerCase() != guessingWord.toLowerCase() || host == 1 || wordGuessedOrNot == true
+                    ) {
                         wordToUpload = editText.text.toString().trim()
                     } else {
                         var curScore = prefs.getInt(getString(R.string.scoreOfCurPlayer), 0)
@@ -347,7 +352,7 @@ class GameActivity : AppCompatActivity() {
                         database.child("rooms").child(reference.toString()).child("Players")
                             .child(userId).child("score").setValue(curScore)
                         prefs.edit().putInt(getString(R.string.scoreOfCurPlayer), curScore).apply()
-                        wordGuessedOrNot=true
+                        wordGuessedOrNot = true
                     }
                     if (editText.text.toString() == "word guessed!!") {
                         wordToUpload = "word guessed!"
@@ -454,7 +459,7 @@ class GameActivity : AppCompatActivity() {
             }
         }
         countdownTimer.start()
-        booleanForCountdownStartedOrNot=true
+        booleanForCountdownStartedOrNot = true
     }
 
     private fun uploadToDatabase(cur_text: String) {
@@ -468,7 +473,7 @@ class GameActivity : AppCompatActivity() {
         if (backButtonPressedBoolean) {
             deleteCurrentPlayer()
             deleteCurrentRoomIfNoOtherPlayerRemains()
-            if (booleanForCountdownStartedOrNot==true)
+            if (booleanForCountdownStartedOrNot )
                 countdownTimer.cancel()
         }
 

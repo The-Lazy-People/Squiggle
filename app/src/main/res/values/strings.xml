@@ -11,6 +11,9 @@
     <string name="host">host</string>
     <string name="drawingData">drawingData</string>
     <string name="server">server</string>
+    <string name="gamestarted">gamestarted</string>
+    <string name="rounds">rounds</string>
+    <string name="countdown">countdown</string>
 
     <!--    General Strings -->
     <string name="email">Email Id</string>
@@ -22,6 +25,7 @@
     <string name="error">ERROR</string>
     <string name="EMPTY">EMPTY</string>
     <string name="userName">userName</string>
+    <string name="startedGameText">Game Started</string>
     <string name="userNotFoundError">User ID not found Error!</string>
 
     <!--    Toggle buttons of Navigational Drawers -->
