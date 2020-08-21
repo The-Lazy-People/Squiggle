@@ -2,7 +2,6 @@ package com.thelazypeople.scribbl
 
 import android.content.Context
 import android.graphics.*
-import android.util.Log
 import android.view.MotionEvent
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
@@ -15,26 +14,26 @@ import com.thelazypeople.scribbl.model.Information
 
 var brush = Paint()
 var path = Path()
-lateinit var params:LinearLayout.LayoutParams
+lateinit var params: LinearLayout.LayoutParams
 
-class PaintView(context: Context?): android.view.View(context) {
+class PaintView(context: Context?) : android.view.View(context) {
 
     private lateinit var database: FirebaseDatabase
     private lateinit var postReference: DatabaseReference
-    var canvasHeight=1
-    var canvasWidth=1
-    var reference:String?=""
+    var canvasHeight = 1
+    var canvasWidth = 1
+    var reference: String? = ""
     var color = Color.BLACK
-    var isclear=0
-    var host=0
+    var isclear = 0
+    var host = 0
 
-    init{
-        brush.isAntiAlias =true
+    init {
+        brush.isAntiAlias = true
         brush.color = Color.BLACK
-        brush.style=Paint.Style.STROKE
-        brush.strokeJoin=Paint.Join.ROUND
-        brush.strokeWidth=18f
-        params= LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+        brush.style = Paint.Style.STROKE
+        brush.strokeJoin = Paint.Join.ROUND
+        brush.strokeWidth = 18f
+        params = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
     }
 
     fun clear() {
@@ -42,68 +41,65 @@ class PaintView(context: Context?): android.view.View(context) {
         postInvalidate()
     }
 
-    fun start(x:Float,y:Float)
-    {
-        if (host==0) {
+    fun start(x: Float, y: Float) {
+        if (host == 0) {
             path.moveTo(x * canvasWidth, y * canvasHeight)
             postInvalidate()
         }
     }
 
-    fun co(x:Float,y:Float)
-    {
-        if (host==0) {
+    fun co(x: Float, y: Float) {
+        if (host == 0) {
             path.lineTo(x * canvasWidth, y * canvasHeight)
             postInvalidate()
         }
     }
 
-    fun end(x:Float,y:Float)
-    {
-        if (host==0) {
+    fun end(x: Float, y: Float) {
+        if (host == 0) {
             path.lineTo(x * canvasWidth, y * canvasHeight)
             postInvalidate()
         }
     }
 
-    fun getref(ref:String?){
-        reference=ref
+    fun getRef(ref: String?) {
+        reference = ref
         database = Firebase.database
-        postReference = database.reference.child("drawingData").child(reference!!)
+        postReference =
+            database.reference.child(context.getString(R.string.drawingData)).child(reference!!)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val pointX = event.x
         val pointY = event.y
 
-        when(event.action)
-        {
+        when (event.action) {
             MotionEvent.ACTION_DOWN -> {
-                if (host==0){
+                if (host == 0) {
                     return false
                 }
-                if(isclear==1){
+                if (isclear == 1) {
                     postReference.removeValue()
-                    isclear=0
+                    isclear = 0
                 }
                 path.moveTo(pointX, pointY)
-                uploadToDatabase(pointX/canvasWidth , pointY/canvasHeight , 0)
+                uploadToDatabase(pointX / canvasWidth, pointY / canvasHeight, 0)
                 return true
             }
             MotionEvent.ACTION_UP -> {
-                if (host==0){
+                if (host == 0) {
                     return false
                 }
                 path.moveTo(pointX, pointY)
-                uploadToDatabase(pointX/canvasWidth , pointY/canvasHeight , 1)
+                uploadToDatabase(pointX / canvasWidth, pointY / canvasHeight, 1)
                 return true
             }
             MotionEvent.ACTION_MOVE -> {
-                if (host==0){
+                if (host == 0) {
                     return false
                 }
                 path.lineTo(pointX, pointY)
-                uploadToDatabase(pointX/canvasWidth , pointY/canvasHeight , 2)
+                uploadToDatabase(pointX / canvasWidth, pointY / canvasHeight, 2)
             }
             else -> return false
         }
@@ -111,17 +107,14 @@ class PaintView(context: Context?): android.view.View(context) {
         return false
     }
 
-    override fun onDraw(canvas: Canvas)
-    {
-        canvas.drawPath(path,brush)
-        canvasHeight=canvas.height
-        canvasWidth=canvas.width
+    override fun onDraw(canvas: Canvas) {
+        canvas.drawPath(path, brush)
+        canvasHeight = canvas.height
+        canvasWidth = canvas.width
     }
 
-    private fun uploadToDatabase(pointX:Float, pointY:Float , type: Int) {
-        val info =
-            Information(pointX, pointY, type)
-        Log.i("DOWNLOADORNOT",info!!.type.toString()+" "+info.pointX.toString()+" "+info.pointY.toString())
+    private fun uploadToDatabase(pointX: Float, pointY: Float, type: Int) {
+        val info = Information(pointX, pointY, type)
         postReference.push().setValue(info)
     }
 }

@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         database = Firebase.database
-        roomReference = database.reference.child("rooms")
+        roomReference = database.reference.child(getString(R.string.rooms))
         prefs = this.getSharedPreferences(
             getString(R.string.packageName), Context.MODE_PRIVATE
         )
@@ -58,16 +58,18 @@ class MainActivity : AppCompatActivity() {
             if (roomName.text.isNullOrEmpty() || passwordSwitchButton.isChecked && closedRoomPassword.text.isNullOrEmpty()) {
                 Toast.makeText(this, getString(R.string.fieldEmpty), Toast.LENGTH_LONG).show()
             } else {
-                val userId: String? = prefs.getString(getString(R.string.userId), "EMPTY")
-                val userName: String? = prefs.getString(getString(R.string.userName), "EMPTY")
-                if (userId != "EMPTY") {
+                val userId: String? =
+                    prefs.getString(getString(R.string.userId), getString(R.string.EMPTY))
+                val userName: String? =
+                    prefs.getString(getString(R.string.userName), getString(R.string.EMPTY))
+                if (userId != getString(R.string.EMPTY)) {
                     val referenceUuidPlusTimestamp =
                         userId.toString() + System.currentTimeMillis().toString()
-                    database.reference.child("drawingData").child(userId.toString()).removeValue()
+                    database.reference.child(getString(R.string.drawingData))
+                        .child(userId.toString()).removeValue()
                     if (passwordSwitchButton.isChecked) {
                         uploadRoomInfo(
                             referenceUuidPlusTimestamp,
-                            0,
                             closedRoomPassword.text.toString(),
                             roomName.text.toString().trim(),
                             userId.toString(),
@@ -76,7 +78,6 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         uploadRoomInfo(
                             referenceUuidPlusTimestamp,
-                            0,
                             getString(R.string.NO),
                             roomName.text.toString().trim(),
                             userId.toString(),
@@ -95,24 +96,25 @@ class MainActivity : AppCompatActivity() {
 
     private fun createAndJoinRoom(referenceUuidPlusTimestamp: String) {
         val intent = Intent(this, WaitingActivity::class.java)
-        intent.putExtra("reference", referenceUuidPlusTimestamp)
-        intent.putExtra("host", 1)
+        intent.putExtra(getString(R.string.reference), referenceUuidPlusTimestamp)
+        intent.putExtra(getString(R.string.host), 1)
         startActivity(intent)
-        Toast.makeText(this, "Room created", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.roomCreated), Toast.LENGTH_SHORT).show()
     }
 
     private fun uploadRoomInfo(
         referenceUuidPlusTimestamp: String,
-        gameStarted: Int,
         password: String,
         roomname: String,
-        userId : String,
-        userName : String
+        userId: String,
+        userName: String
     ) {
-        val roomInfo = roomInfo(gameStarted, password, referenceUuidPlusTimestamp, roomname)
-        roomReference.child(referenceUuidPlusTimestamp).child("info").setValue(roomInfo)
-        roomReference.child(referenceUuidPlusTimestamp).child("Players")
-            .child(userId).setValue(playerInfo( userName, 0, userId))
-        roomReference.child(referenceUuidPlusTimestamp).child("server").setValue(userId)
+        val roomInfo = roomInfo(0, password, referenceUuidPlusTimestamp, roomname)
+        roomReference.child(referenceUuidPlusTimestamp).child(getString(R.string.info))
+            .setValue(roomInfo)
+        roomReference.child(referenceUuidPlusTimestamp).child(getString(R.string.Players))
+            .child(userId).setValue(playerInfo(userName, 0, userId))
+        roomReference.child(referenceUuidPlusTimestamp).child(getString(R.string.server))
+            .setValue(userId)
     }
 }

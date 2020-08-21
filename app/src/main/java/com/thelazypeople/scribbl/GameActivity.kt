@@ -105,7 +105,7 @@ class GameActivity : AppCompatActivity() {
         timeLimit = intent.getLongExtra("countdown", 0)
         timeLimit *= 1000
         paintView.end(0f, 0f)
-        paintView.getref(reference)
+        paintView.getRef(reference)
 
         playing_players.layoutManager = LinearLayoutManager(this)
 
