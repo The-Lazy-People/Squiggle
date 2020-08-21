@@ -1,4 +1,5 @@
 package com.thelazypeople.scribbl.model
+import com.thelazypeople.scribbl.WaitingActivity
 
 /**
  * Stores the information about each Room.

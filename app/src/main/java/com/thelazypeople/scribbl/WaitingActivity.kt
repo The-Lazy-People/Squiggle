@@ -20,6 +20,7 @@ import com.thelazypeople.scribbl.adapters.PlayersListAdapter
 import com.thelazypeople.scribbl.model.playerInfo
 import kotlinx.android.synthetic.main.activity_waiting.*
 
+/** [WaitingActivity] is used as a waiting lobby when a room is created and other players are joining. */
 class WaitingActivity : AppCompatActivity() {
 
     private lateinit var gameStartedRef: DatabaseReference

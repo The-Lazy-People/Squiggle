@@ -28,6 +28,7 @@ import kotlinx.android.synthetic.main.chats_preview.*
 import kotlinx.android.synthetic.main.choose_word.*
 import kotlinx.android.synthetic.main.game_content.*
 
+/** [GameActivity] is where actual Scribble game commence. */
 class GameActivity : AppCompatActivity() {
     private var wordGuessedOrNot: Boolean = false
     private lateinit var countdownTimer: CountDownTimer
@@ -52,6 +53,7 @@ class GameActivity : AppCompatActivity() {
     private lateinit var childEventListenerForChat: ChildEventListener
     private lateinit var childEventListenerForPlayers: ChildEventListener
     private lateinit var childEventListenerForGame: ChildEventListener
+    private lateinit var chatAdapter: ChatAdapter
     var reference: String? = ""
     private var otherUserName: String? = ""
     private var playersList = mutableListOf<playerInfo>()
@@ -67,17 +69,18 @@ class GameActivity : AppCompatActivity() {
     val fixedScore = 10
     private lateinit var mDialog: Dialog
     var colorProvider = mutableListOf<Boolean>() // colored List of Players for Navigational Drawer
-
     var wordsCollection = WordCollectionData().wordsCollection
-
     var colorSetForChats = mutableSetOf<String>() //contains UID of colored players in Chats.
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
 
+        /** To setup [PaintView]. The canvas of drawing. */
         paintView = PaintView(this)
         main.addView(paintView)
 
+        /** To clear the canvas. */
         eraser.setOnClickListener {
             if (host == 1) {
                 paintView.clear()
@@ -86,7 +89,6 @@ class GameActivity : AppCompatActivity() {
             }
         }
 
-        //Drawer
         peoples.setOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)
         }
@@ -96,20 +98,20 @@ class GameActivity : AppCompatActivity() {
             getString(R.string.packageName), Context.MODE_PRIVATE
         )
         prefs.edit().putInt(getString(R.string.scoreOfCurPlayer), 0).apply()
-        userId = prefs.getString(getString(R.string.userId), "EMPTY")!!
-        userName = prefs.getString(getString(R.string.userName), "EMPTY")!!
+        userId = prefs.getString(getString(R.string.userId), getString(R.string.EMPTY))!!
+        userName = prefs.getString(getString(R.string.userName), getString(R.string.EMPTY))!!
         val intent: Intent = intent
-        reference = intent.getStringExtra("reference")
-        serverHost = intent.getIntExtra("host", 0)
-        noOfRounds = intent.getIntExtra("rounds", 0)
-        timeLimit = intent.getLongExtra("countdown", 0)
+        reference = intent.getStringExtra(getString(R.string.reference))
+        serverHost = intent.getIntExtra(getString(R.string.host), 0)
+        noOfRounds = intent.getIntExtra(getString(R.string.rounds), 0)
+        timeLimit = intent.getLongExtra(getString(R.string.countdown), 0)
         timeLimit *= 1000
         paintView.end(0f, 0f)
         paintView.getRef(reference)
 
         playing_players.layoutManager = LinearLayoutManager(this)
 
-        val chatAdapter = ChatAdapter(chats = chatsDisplay, colorSet = colorSetForChats)
+        chatAdapter = ChatAdapter(chats = chatsDisplay, colorSet = colorSetForChats)
         val layoutManager = LinearLayoutManager(this)
         layoutManager.reverseLayout = true
         layoutManager.stackFromEnd = true
@@ -118,246 +120,59 @@ class GameActivity : AppCompatActivity() {
 
         database = Firebase.database.reference
         if (reference != null) {
+
             if (serverHost == 1) {
-                database.child("rooms").child(reference.toString()).child("info")
-                    .child("chanceChange").setValue(1)
+                database.child(getString(R.string.rooms)).child(reference.toString())
+                    .child(getString(R.string.info))
+                    .child(getString(R.string.chanceChange)).setValue(1)
                 paintView.host = 1
                 host = 1
             }
-            postReference = database.child("games").child(reference.toString()).child("Chats")
 
-            // Chat reference for a room
-            childEventListenerForChat = object : ChildEventListener {
-                override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-                    val textObj = snapshot.getValue<ChatText>()
-                    if (textObj != null) {
-                        if (textObj.text == "word guessed!!") {
-                            colorSetForChats.add(textObj.UID)
-                            for (i in 0..playersList.size - 1) {
-                                if (playersList[i].UID == textObj.UID) {
-                                    colorProvider[i] = true
-                                }
-                            }
-                            val adapter = PlayingPlayersAdapter(playersList, colorProvider)
-                            playing_players.adapter = adapter
-                        }
-                        otherUserName = textObj?.userName
-                        chatsDisplay.add(ChatText(textObj?.UID, textObj?.userName, textObj?.text))
-                        chatAdapter.notifyDataSetChanged()
-                        chats_recycler.scrollToPosition(chatsDisplay.size - 1)
-                    }
-                }
+            /** Chat event listener for a room. */
+            chatListener()
 
-                override fun onCancelled(error: DatabaseError) {
-                    // not needed
-                }
+            /** Drawing data event listener of a room. */
+            drawingDataEventListener()
 
-                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
-                    // not needed
-                }
+            /** Player event listener in a room. */
+            playerEventListener()
 
-                override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
-                    // not needed
-                }
+            /** Chance Change Event Listener of a room. */
+            chanceChangeEventListener()
 
-                override fun onChildRemoved(snapshot: DataSnapshot) {
-                    // not needed
-                }
+            /** Whose Chance Event Listener of a room. */
+            whoseChanceEventListener()
 
-            }
-            postReference.addChildEventListener(childEventListenerForChat)
-
-            // Drawing data reference of a room
-            postRef = database.child("drawingData").child(reference.toString())
-            childEventListenerForGame = object : ChildEventListener {
-
-                override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-                    val info = snapshot.getValue<Information>()
-                    Log.i(
-                        "DOWNLOADORNOT",
-                        info!!.type.toString() + " " + info.pointX.toString() + " " + info.pointY.toString()
-                    )
-                    if (info.type == 0) {
-                        paintView.start(info.pointX, info.pointY)
-                        //Toast.makeText(this@GameActivity, "Start", Toast.LENGTH_SHORT).show()
-                    } else if (info.type == 2) {
-                        paintView.co(info!!.pointX, info.pointY)
-                    } else if (info.type == 1) {
-                        paintView.end(info!!.pointX, info.pointY)
-                        //Toast.makeText(this@GameActivity, "End", Toast.LENGTH_SHORT).show()
-                    } else if (info.type == 3) {
-                        paintView.clear()
-                        //Toast.makeText(this@GameActivity, "Clear", Toast.LENGTH_SHORT).show()
-                    }
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    // not needed
-                }
-
-                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
-                    // not needed
-                }
-
-                override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
-                    // not needed
-                }
-
-                override fun onChildRemoved(snapshot: DataSnapshot) {
-                    // not needed
-                }
-
-            }
-            postRef.addChildEventListener(childEventListenerForGame)
-
-            // Player reference in a room
-            playerReference = database.child("rooms").child(reference.toString()).child("Players")
-            childEventListenerForPlayers = object : ChildEventListener {
-                override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-                    val playerInfoObj = snapshot.getValue<playerInfo>()
-                    if (playerInfoObj != null) {
-                        playersList.add(playerInfoObj)
-                        colorProvider.add(false)
-                        playerCount++
-                        val adapter = PlayingPlayersAdapter(playersList, colorProvider)
-                        playing_players.adapter = adapter
-                        for (i in 0..playersList.size - 1) {
-                            Log.i("playersadd", playersList[i].Name)
-                        }
-                    }
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    // not needed
-                }
-
-                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
-                    // not needed
-                }
-
-                override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
-                    val playerInfoObj = snapshot.getValue<playerInfo>()
-                    for (i in 0..playersList.size - 1) {
-                        if (playerInfoObj?.UID.toString() == playersList[i].UID) {
-                            playersList[i].score = playerInfoObj!!.score
-                        }
-                    }
-                }
-
-                override fun onChildRemoved(snapshot: DataSnapshot) {
-                    val playerInfoObj = snapshot.getValue<playerInfo>()
-                    if (playerInfoObj != null) {
-                        val temp = mutableListOf<playerInfo>()
-                        val tempColor = mutableListOf<Boolean>()
-                        for (i in 0..playersList.size - 1) {
-                            if (playersList[i].UID != playerInfoObj.UID) {
-                                temp.add(playersList[i])
-                                tempColor.add(colorProvider[i])
-                                Log.i("AAJAJA", playersList[i].Name)
-                            }
-                        }
-                        playersList = temp
-                        colorProvider = tempColor
-                        playerCount--
-                        val adapter = PlayingPlayersAdapter(playersList, colorProvider)
-                        playing_players.adapter = adapter
-                        for (i in 0..playersList.size - 1) {
-                            Log.i("playersdel", playersList[i].Name)
-                        }
-                    }
-                }
-
-            }
-            playerReference.addChildEventListener(childEventListenerForPlayers)
-
-
-            chanceChangeRef = database.child("rooms").child(reference.toString()).child("info")
-                .child("chanceChange")
-            valueEventListenerForChanceChange = object : ValueEventListener {
-                override fun onCancelled(error: DatabaseError) {
-
-                }
-
-                override fun onDataChange(snapshot: DataSnapshot) {
-
-                    if (snapshot.value.toString() == "1") {
-                        if (serverHost == 1) {
-                            changeUserChance()
-                        }
-                    }
-                }
-            }
-            chanceChangeRef.addValueEventListener(valueEventListenerForChanceChange)
-            whoseChanceRef =
-                database.child("rooms").child(reference.toString()).child("info").child("chanceUID")
-            valueEventListenerForWhoesChance = object : ValueEventListener {
-                override fun onCancelled(error: DatabaseError) {
-
-                }
-
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    if (snapshot.value.toString() == userId) {
-                        Toast.makeText(this@GameActivity, "MY CHANCE", Toast.LENGTH_SHORT).show()
-                        uploadToDatabase(userName.trim() + " chance!!")
-                        host = 1
-                        paintView.host = 1
-                        setDialog()
-                    } else {
-                        host = 0
-                        paintView.host = 0
-                    }
-                    for (i in 0..colorProvider.size - 1) {
-                        colorProvider[i] = false
-                        val adapter = PlayingPlayersAdapter(playersList, colorProvider)
-                        playing_players.adapter = adapter
-                    }
-                    wordGuessedOrNot = false
-                    colorSetForChats.clear()
-                }
-            }
-            whoseChanceRef.addValueEventListener(valueEventListenerForWhoesChance)
-            var flag = 0
-            guessingWordRef =
-                database.child("rooms").child(reference.toString()).child("info")
-                    .child("wordToGuess")
-            valueEventListenerForGuessingWord = object : ValueEventListener {
-                override fun onCancelled(error: DatabaseError) {}
-
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    if (flag == 0) {
-                        flag = 1
-                    } else if (serverHost == 1) {
-                        countdown(timeLimit)
-                    }
-                    guessingWord = snapshot.value.toString()
-                }
-            }
-            guessingWordRef.addValueEventListener(valueEventListenerForGuessingWord)
+            /** Word guessing Event Listener of a room. */
+            guessingWordEventListener()
 
         }
 
+        /** Chat send button. */
         button.setOnClickListener {
             if (editText.text.toString() == "") {
-                Toast.makeText(this, "Empty text", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.emptyText), Toast.LENGTH_SHORT).show()
             } else {
                 if (reference != null) {
-                    var wordToUpload = "word guessed!!"
+                    var wordToUpload = getString(R.string.wordGuessed)
                     if (editText.text.toString()
-                            .toLowerCase() != guessingWord.toLowerCase() || host == 1 || wordGuessedOrNot == true
+                            .toLowerCase() != guessingWord.toLowerCase() || host == 1 || wordGuessedOrNot
                     ) {
                         wordToUpload = editText.text.toString().trim()
                     } else {
                         var curScore = prefs.getInt(getString(R.string.scoreOfCurPlayer), 0)
                         curScore += fixedScore
-                        database.child("rooms").child(reference.toString()).child("Players")
-                            .child(userId).child("score").setValue(curScore)
+                        database.child(getString(R.string.rooms)).child(reference.toString())
+                            .child(getString(R.string.Players))
+                            .child(userId).child(getString(R.string.score)).setValue(curScore)
                         prefs.edit().putInt(getString(R.string.scoreOfCurPlayer), curScore).apply()
                         wordGuessedOrNot = true
                     }
-                    if (editText.text.toString() == "word guessed!!") {
-                        wordToUpload = "word guessed!"
+                    if (editText.text.toString() == getString(R.string.wordGuessed)) {
+                        wordToUpload = getString(R.string.wordGuessedModified)
                     }
-                    uploadToDatabase(wordToUpload)
+                    chatUploadToDatabase(wordToUpload)
                     editText.text.clear()
                     chatAdapter.notifyDataSetChanged()
                     chats_recycler.scrollToPosition(chatsDisplay.size - 1)
@@ -370,6 +185,232 @@ class GameActivity : AppCompatActivity() {
 
     }
 
+    /** Chat event listener for a room. */
+    private fun chatListener() {
+        postReference = database.child(getString(R.string.games)).child(reference.toString())
+            .child(getString(R.string.Chats))
+
+        childEventListenerForChat = object : ChildEventListener {
+            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                val textObj = snapshot.getValue<ChatText>()
+                if (textObj != null) {
+                    if (textObj.text == getString(R.string.wordGuessed)) {
+                        colorSetForChats.add(textObj.UID)
+                        for (i in 0 until playersList.size) {
+                            if (playersList[i].UID == textObj.UID) {
+                                colorProvider[i] = true
+                            }
+                        }
+                        val adapter = PlayingPlayersAdapter(playersList, colorProvider)
+                        playing_players.adapter = adapter
+                    }
+                    otherUserName = textObj.userName
+                    chatsDisplay.add(ChatText(textObj.UID, textObj.userName, textObj.text))
+                    chatAdapter.notifyDataSetChanged()
+                    chats_recycler.scrollToPosition(chatsDisplay.size - 1)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // not needed
+            }
+
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+                // not needed
+            }
+
+            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+                // not needed
+            }
+
+            override fun onChildRemoved(snapshot: DataSnapshot) {
+                // not needed
+            }
+
+        }
+        postReference.addChildEventListener(childEventListenerForChat)
+    }
+
+    /** Drawing data event listener of a room. */
+    private fun drawingDataEventListener() {
+        postRef = database.child(getString(R.string.drawingData)).child(reference.toString())
+        childEventListenerForGame = object : ChildEventListener {
+
+            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                val info = snapshot.getValue<Information>()
+                Log.i(
+                    "DOWNLOADORNOT",
+                    info!!.type.toString() + " " + info.pointX.toString() + " " + info.pointY.toString()
+                )
+                if (info.type == 0) {
+                    paintView.start(info.pointX, info.pointY)
+                } else if (info.type == 2) {
+                    paintView.co(info!!.pointX, info.pointY)
+                } else if (info.type == 1) {
+                    paintView.end(info!!.pointX, info.pointY)
+                } else if (info.type == 3) {
+                    paintView.clear()
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // not needed
+            }
+
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+                // not needed
+            }
+
+            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+                // not needed
+            }
+
+            override fun onChildRemoved(snapshot: DataSnapshot) {
+                // not needed
+            }
+
+        }
+        postRef.addChildEventListener(childEventListenerForGame)
+    }
+
+    /** Player event listener in a room. */
+    private fun playerEventListener() {
+        playerReference = database.child(getString(R.string.rooms)).child(reference.toString())
+            .child(getString(R.string.Players))
+        childEventListenerForPlayers = object : ChildEventListener {
+            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                val playerInfoObj = snapshot.getValue<playerInfo>()
+                if (playerInfoObj != null) {
+                    playersList.add(playerInfoObj)
+                    colorProvider.add(false)
+                    playerCount++
+                    val adapter = PlayingPlayersAdapter(playersList, colorProvider)
+                    playing_players.adapter = adapter
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // not needed
+            }
+
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+                // not needed
+            }
+
+            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+                val playerInfoObj = snapshot.getValue<playerInfo>()
+                for (i in 0 until playersList.size) {
+                    if (playerInfoObj?.UID.toString() == playersList[i].UID) {
+                        playersList[i].score = playerInfoObj!!.score
+                    }
+                }
+            }
+
+            override fun onChildRemoved(snapshot: DataSnapshot) {
+                val playerInfoObj = snapshot.getValue<playerInfo>()
+                if (playerInfoObj != null) {
+                    val temp = mutableListOf<playerInfo>()
+                    val tempColor = mutableListOf<Boolean>()
+                    for (i in 0 until playersList.size) {
+                        if (playersList[i].UID != playerInfoObj.UID) {
+                            temp.add(playersList[i])
+                            tempColor.add(colorProvider[i])
+                            Log.i("AAJAJA", playersList[i].Name)
+                        }
+                    }
+                    playersList = temp
+                    colorProvider = tempColor
+                    playerCount--
+                    val adapter = PlayingPlayersAdapter(playersList, colorProvider)
+                    playing_players.adapter = adapter
+                    for (i in 0 until playersList.size) {
+                        Log.i("playersdel", playersList[i].Name)
+                    }
+                }
+            }
+
+        }
+        playerReference.addChildEventListener(childEventListenerForPlayers)
+    }
+
+    /** Chance Change Event Listener of a room. */
+    private fun chanceChangeEventListener() {
+        chanceChangeRef = database.child(getString(R.string.rooms)).child(reference.toString())
+            .child(getString(R.string.info))
+            .child(getString(R.string.chanceChange))
+        valueEventListenerForChanceChange = object : ValueEventListener {
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+
+            override fun onDataChange(snapshot: DataSnapshot) {
+
+                if (snapshot.value.toString() == "1") {
+                    if (serverHost == 1) {
+                        changeUserChance()
+                    }
+                }
+            }
+        }
+        chanceChangeRef.addValueEventListener(valueEventListenerForChanceChange)
+    }
+
+    /** Whose Chance Event Listener of a room. */
+    private fun whoseChanceEventListener() {
+        whoseChanceRef =
+            database.child(getString(R.string.rooms)).child(reference.toString())
+                .child(getString(R.string.info)).child(getString(R.string.chanceUID))
+        valueEventListenerForWhoesChance = object : ValueEventListener {
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.value.toString() == userId) {
+                    Toast.makeText(this@GameActivity, "MY CHANCE", Toast.LENGTH_SHORT).show()
+                    chatUploadToDatabase(userName.trim() + " chance!!")
+                    host = 1
+                    paintView.host = 1
+                    setDialog()
+                } else {
+                    host = 0
+                    paintView.host = 0
+                }
+                for (i in 0 until colorProvider.size) {
+                    colorProvider[i] = false
+                    val adapter = PlayingPlayersAdapter(playersList, colorProvider)
+                    playing_players.adapter = adapter
+                }
+                wordGuessedOrNot = false
+                colorSetForChats.clear()
+            }
+        }
+        whoseChanceRef.addValueEventListener(valueEventListenerForWhoesChance)
+    }
+
+    /** Word guessing Event Listener of a room. */
+    private fun guessingWordEventListener() {
+        var flag = 0
+        guessingWordRef =
+            database.child(getString(R.string.rooms)).child(reference.toString())
+                .child(getString(R.string.info))
+                .child(getString(R.string.wordToGuess))
+        valueEventListenerForGuessingWord = object : ValueEventListener {
+            override fun onCancelled(error: DatabaseError) {}
+
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (flag == 0) {
+                    flag = 1
+                } else if (serverHost == 1) {
+                    countdown(timeLimit)
+                }
+                guessingWord = snapshot.value.toString()
+            }
+        }
+        guessingWordRef.addValueEventListener(valueEventListenerForGuessingWord)
+    }
+
+    /** Dialog to choose one of the Three words given as a choice to the player from the collection. */
     private fun setDialog() {
         mDialog = Dialog(this)
         mDialog.setContentView(R.layout.choose_word)
@@ -400,27 +441,23 @@ class GameActivity : AppCompatActivity() {
         mDialog.show()
 
         mDialog.word1.setOnClickListener {
-            Toast.makeText(this, mDialog.word1.text.toString(), Toast.LENGTH_SHORT).show()
-            database.child("rooms").child(reference.toString()).child("info").child("wordToGuess")
-                .setValue(mDialog.word1.text.toString())
+            choseWordUploadToDatabase(mDialog.word1.text.toString())
             mDialog.dismiss()
         }
         mDialog.word2.setOnClickListener {
-            Toast.makeText(this, mDialog.word2.text.toString(), Toast.LENGTH_SHORT).show()
-            database.child("rooms").child(reference.toString()).child("info").child("wordToGuess")
-                .setValue(mDialog.word2.text.toString())
+            choseWordUploadToDatabase(mDialog.word2.text.toString())
             mDialog.dismiss()
         }
         mDialog.word3.setOnClickListener {
-            Toast.makeText(this, mDialog.word3.text.toString(), Toast.LENGTH_SHORT).show()
-            database.child("rooms").child(reference.toString()).child("info").child("wordToGuess")
-                .setValue(mDialog.word3.text.toString())
+            choseWordUploadToDatabase(mDialog.word3.text.toString())
             mDialog.dismiss()
         }
     }
 
+    /** The next player to get the chance is decided through here. */
     private fun changeUserChance() {
-        database.child("rooms").child(reference.toString()).child("info").child("chanceChange")
+        database.child(getString(R.string.rooms)).child(reference.toString())
+            .child(getString(R.string.info)).child(getString(R.string.chanceChange))
             .setValue(0)
         indexOfChance++
 
@@ -432,26 +469,28 @@ class GameActivity : AppCompatActivity() {
         postRef.push().setValue(Information(10001f, 10001f, 3))
         paintView.isclear = 1
         if (roundTillNow < noOfRounds) {
-            Log.i("TIMER", "index" + indexOfChance.toString())
+            Log.i("TIMER", "index $indexOfChance")
             Log.i("TIMER", playersList[indexOfChance].UID)
-            database.child("rooms").child(reference.toString()).child("info").child("chanceUID")
+            database.child(getString(R.string.rooms)).child(reference.toString())
+                .child(getString(R.string.info)).child(getString(R.string.chanceUID))
                 .setValue(playersList[indexOfChance].UID)
             Log.i("TIMER", "$roundTillNow - $noOfRounds")
             Log.i("TIMER", timeLimit.toString())
 
         } else {
-            uploadToDatabase("GAME OVER!")
-
+            chatUploadToDatabase("GAME OVER!")
         }
     }
 
+    /** Countdown timer for a round. */
     private fun countdown(sec: Long) {
         countdownTimer = object : CountDownTimer(sec, 1000) {
             override fun onFinish() {
                 Log.i("TIMER", "Finish")
-                database.child("rooms").child(reference.toString()).child("info")
-                    .child("chanceChange").setValue(1)
-                uploadToDatabase("Correct word is - $guessingWord")
+                database.child(getString(R.string.rooms)).child(reference.toString())
+                    .child(getString(R.string.info))
+                    .child(getString(R.string.chanceChange)).setValue(1)
+                chatUploadToDatabase("Correct word is - $guessingWord")
             }
 
             override fun onTick(p0: Long) {
@@ -462,9 +501,18 @@ class GameActivity : AppCompatActivity() {
         booleanForCountdownStartedOrNot = true
     }
 
-    private fun uploadToDatabase(cur_text: String) {
+    /** Chat messages upload to Firebase Database */
+    private fun chatUploadToDatabase(cur_text: String) {
         val textObj = ChatText(userId, userName, cur_text)
         postReference.push().setValue(textObj)
+    }
+
+    /** Chosen word upload to Firebase Database */
+    private fun choseWordUploadToDatabase(word: String) {
+        Toast.makeText(this, word, Toast.LENGTH_SHORT).show()
+        database.child(getString(R.string.rooms)).child(reference.toString())
+            .child(getString(R.string.info)).child(getString(R.string.wordToGuess))
+            .setValue(word)
     }
 
     override fun onPause() {
@@ -473,7 +521,7 @@ class GameActivity : AppCompatActivity() {
         if (backButtonPressedBoolean) {
             deleteCurrentPlayer()
             deleteCurrentRoomIfNoOtherPlayerRemains()
-            if (booleanForCountdownStartedOrNot )
+            if (booleanForCountdownStartedOrNot)
                 countdownTimer.cancel()
         }
 
@@ -482,7 +530,6 @@ class GameActivity : AppCompatActivity() {
             deleteCurrentPlayer()
             deleteCurrentRoomIfNoOtherPlayerRemains()
         }
-
 
     }
 
@@ -499,47 +546,55 @@ class GameActivity : AppCompatActivity() {
         routeToMainActivity()
     }
 
+    /** Route to [MainActivity]. */
     private fun routeToMainActivity() {
         goToMainActivityBoolean = true
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
     }
 
+    /** Deletion of current Player from the Room. */
     private fun deleteCurrentPlayer() {
-        val userId: String? = prefs.getString(getString(R.string.userId), "EMPTY")
-        if (userId != "EMPTY") {
-            database.child("rooms").child(reference.toString()).child("Players").child(userId!!)
+        val userId: String? = prefs.getString(getString(R.string.userId), getString(R.string.EMPTY))
+        if (userId != getString(R.string.EMPTY)) {
+            database.child(getString(R.string.rooms)).child(reference.toString())
+                .child(getString(R.string.Players)).child(userId!!)
                 .removeValue()
         }
     }
 
+    /** Delete Room and corresponding data if no Player remains. */
     private fun deleteCurrentRoomIfNoOtherPlayerRemains() {
         if (playerCount <= baseCount) {
-            database.child("rooms").child(reference.toString()).removeValue()
-            database.child("games").child(reference.toString()).removeValue()
-            database.child("drawingData").child(reference.toString()).removeValue()
+            database.child(getString(R.string.rooms)).child(reference.toString()).removeValue()
+            database.child(getString(R.string.games)).child(reference.toString()).removeValue()
+            database.child(getString(R.string.drawingData)).child(reference.toString())
+                .removeValue()
         }
     }
 
+    /** Check whether Rooms exist or not while Joining.
+     * If exist, add the Player to the Room.
+     * Else, redirect Player to [MainActivity]*/
     private fun checkRoomExistOrNot() {
         // room reference
         val rootRef =
-            database.child("rooms").child(reference.toString())
+            database.child(getString(R.string.rooms)).child(reference.toString())
 
-        // check room exist or not
         rootRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
-                    // room exist. Add player to the room
-                    val userId: String? = prefs.getString(getString(R.string.userId), "EMPTY")
-                    val userName: String? = prefs.getString(getString(R.string.userName), "EMPTY")
-                    if (userId != "EMPTY") {
+                    val userId: String? =
+                        prefs.getString(getString(R.string.userId), getString(R.string.EMPTY))
+                    val userName: String? =
+                        prefs.getString(getString(R.string.userName), getString(R.string.EMPTY))
+                    if (userId != getString(R.string.EMPTY)) {
                         Log.i("###WAITINGACTIVITY", "done")
-                        database.child("rooms").child(reference.toString()).child("Players")
+                        database.child(getString(R.string.rooms)).child(reference.toString())
+                            .child(getString(R.string.Players))
                             .child(userId.toString()).setValue(playerInfo(userName, 0, userId))
                     }
                 } else {
-                    //room doesn't exist. Re-direct to MainActivity.kt
                     routeToMainActivity()
                 }
             }

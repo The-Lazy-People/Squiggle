@@ -1,7 +1,8 @@
 package com.thelazypeople.scribbl.model
+import com.thelazypeople.scribbl.PaintView
 
 /**
- * Stores the Information of the point to be populated in [PaintView.kt]. This results in realtime canvas drawing.
+ * Stores the Information of the point to be populated in [PaintView]. This results in realtime canvas drawing.
  *
  * @param pointX: X value of the point passed.
  * @param pointY: Y value of the point passed.

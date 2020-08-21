@@ -1,4 +1,5 @@
 package com.thelazypeople.scribbl.model
+import com.thelazypeople.scribbl.adapters.ChatAdapter
 
 /**
  * Stores the chat message to be populated in [ChatAdapter].
