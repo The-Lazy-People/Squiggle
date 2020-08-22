@@ -8,4 +8,8 @@
 
     <color name="Green">#0D7612</color>
     <color name="DarkGreen">#0F5C53</color>
+    <color name="BluePopsicle">#0f2862</color>
+    <color name="Redline">#9e363a</color>
+    <color name="PurpleShadow">#091f36</color>
+    <color name="GreyBlueLeaf">#4f5f76</color>
 </resources>

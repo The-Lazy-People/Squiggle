@@ -11,9 +11,18 @@
         android:roundIcon="@drawable/ic_pencil"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".WaitingActivity">
+        <activity android:name=".SplashActivity"
+            android:theme="@style/FullScreen"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
+        <activity
+            android:name=".WaitingActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".joinRoom.RoomListActivity"
             android:screenOrientation="portrait" />
@@ -23,16 +32,10 @@
         <activity
             android:name=".auth.AuthActivity"
             android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait" />
-
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
