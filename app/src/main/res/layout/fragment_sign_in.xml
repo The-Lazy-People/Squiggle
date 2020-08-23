@@ -18,7 +18,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:lottie_autoPlay="false"
         app:lottie_fileName="splashyloader.json"
-        app:lottie_loop="true" />
+        app:lottie_loop="false" />
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -30,10 +30,9 @@
         android:background="@drawable/login_background"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.167">
+        app:layout_constraintVertical_bias="0.16000003">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layoutName"
@@ -70,7 +69,6 @@
             android:hint="Email Id"
             app:hintAnimationEnabled="true"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/layoutName">
 
@@ -93,8 +91,9 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="32dp"
             android:hint="Password"
-            app:boxBackgroundMode="outline"
+            app:boxBackgroundMode="filled"
             app:hintAnimationEnabled="true"
+            app:hintEnabled="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/layoutEmail"
