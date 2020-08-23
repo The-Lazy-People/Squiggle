@@ -18,6 +18,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.thelazypeople.scribbl.MainActivity
 import com.thelazypeople.scribbl.R
+import kotlinx.android.synthetic.main.fragment_sign_in.*
 import kotlinx.android.synthetic.main.fragment_sign_up.*
 
 /** [SignUpFragment] is called to Sign-Up users by authenticating with Firebase Authentication. */
@@ -40,6 +41,9 @@ class SignUpFragment : Fragment() {
             getString(R.string.packageName), Context.MODE_PRIVATE
         )
 
+        register_loading.setMinAndMaxFrame(3, 50)
+        register_loading.visibility = View.INVISIBLE
+
         /** [SignInFragment] is called to switch to Sign In users. */
         sign_up_signin.setOnClickListener {
             activity?.supportFragmentManager?.beginTransaction()
@@ -57,7 +61,13 @@ class SignUpFragment : Fragment() {
                 email_register.error = getString(R.string.enterEmail)
             } else if (TextUtils.isEmpty(password) || password.length < 5) {
                 pass_register.error = getString(R.string.passwordLengthSmall)
+            } else if(!register_checkPrivacy.isChecked){
+                register_checkPrivacy.error = "This is must."
             } else {
+                register_loading.elevation = 8.0f
+                register_loading.visibility = View.VISIBLE
+                register_loading.playAnimation()
+
                 register_btn.isEnabled = false
                 register_btn.isClickable = false
                 mAuth.createUserWithEmailAndPassword(email, password)
@@ -73,9 +83,12 @@ class SignUpFragment : Fragment() {
                                 name_register.text.toString().trim()
                             ).apply();
                             startActivity(Intent(context, MainActivity::class.java))
+                            register_loading.cancelAnimation()
                             activity?.finish()
 
                         } else {
+                            register_loading.cancelAnimation()
+                            register_loading.visibility = View.INVISIBLE
                             // Sign Up failed. Error message displayed.
                             Toast.makeText(
                                 context, getString(R.string.authFailed),

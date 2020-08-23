@@ -8,6 +8,18 @@
     android:background="@drawable/camila"
     tools:context=".auth.SignInFragment">
 
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:lottie_autoPlay="false"
+        app:lottie_fileName="splashyloader.json"
+        app:lottie_loop="true" />
+
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/placeHolder"
@@ -111,10 +123,10 @@
             app:layout_constraintEnd_toEndOf="@+id/inputLayout"
             app:layout_constraintHorizontal_bias="0.52"
             app:layout_constraintStart_toStartOf="@+id/inputLayout"
-            app:layout_constraintTop_toBottomOf="@+id/checkBox" />
+            app:layout_constraintTop_toBottomOf="@+id/login_checkPrivacy" />
 
         <CheckBox
-            android:id="@+id/checkBox"
+            android:id="@+id/login_checkPrivacy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:buttonTint="#F9F8F8"

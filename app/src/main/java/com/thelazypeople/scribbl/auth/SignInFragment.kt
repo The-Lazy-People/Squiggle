@@ -3,6 +3,7 @@ package com.thelazypeople.scribbl.auth
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.opengl.Visibility
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.LayoutInflater
@@ -27,6 +28,7 @@ class SignInFragment : Fragment() {
     private val auth = Firebase.auth
     private lateinit var prefs: SharedPreferences
 
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -48,6 +50,9 @@ class SignInFragment : Fragment() {
             getString(R.string.packageName), Context.MODE_PRIVATE
         )
 
+        loading.setMinAndMaxFrame(3, 50)
+        loading.visibility = View.INVISIBLE
+
         val userName: String? =
             prefs.getString(getString(R.string.userName), getString(R.string.EMPTY))
         if (userName != getString(R.string.EMPTY)) {
@@ -66,9 +71,16 @@ class SignInFragment : Fragment() {
                 email_login.error = getString(R.string.enterEmail)
             } else if (TextUtils.isEmpty(password) || password.length < 5) {
                 pass_login.error = getString(R.string.passwordLengthSmall)
+            } else if (!login_checkPrivacy.isChecked) {
+              login_checkPrivacy.error = "This is must"
             } else {
+                loading.elevation = 8.0f
+                loading.visibility = View.VISIBLE
+                loading.playAnimation()
+
                 login_btn.isEnabled = false
                 login_btn.isClickable = false
+
                 auth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener { task: Task<AuthResult> ->
                         if (task.isSuccessful) {
@@ -82,9 +94,11 @@ class SignInFragment : Fragment() {
                                 FirebaseAuth.getInstance().currentUser?.uid.toString()
                             ).apply()
                             startActivity(Intent(context, MainActivity::class.java))
+                            loading.cancelAnimation()
                             activity?.finish()
 
                         } else {
+                            loading.cancelAnimation()
                             // Sign In failed. Error message displayed.
                             Toast.makeText(
                                 context, getString(R.string.authFailed),
@@ -94,6 +108,7 @@ class SignInFragment : Fragment() {
                             login_btn.isClickable = true
 
                         }
+                        loading.visibility = View.INVISIBLE
                     }
             }
         }
