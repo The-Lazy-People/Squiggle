@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DatabaseReference
@@ -28,9 +29,18 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         logout.setOnClickListener {
-            Firebase.auth.signOut()
-            startActivity(Intent(this, AuthActivity::class.java))
-            finish()
+            val builder = AlertDialog.Builder(this)
+            with(builder){
+                setMessage(R.string.logOut_alert)
+                setPositiveButton("Yes") { dialogInterface, i ->
+                    Firebase.auth.signOut()
+                    startActivity(Intent(baseContext, AuthActivity::class.java))
+                    finish()
+                }
+                setNeutralButton("Cancel"){ dialogInterface, i ->
+                }
+                show()
+            }
         }
 
         database = Firebase.database

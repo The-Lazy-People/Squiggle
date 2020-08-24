@@ -47,11 +47,12 @@
     <string name="enterEmail">Please enter the Email</string>
     <string name="passwordLengthSmall">Length greater than 5</string>
     <string name="authFailed">Authentication failed</string>
+    <string name="logOut_alert">Do you want to Log Out?</string>
 
     <!--    createRoom and joinRoom -->
-    <string name="createRoomText">CREATE ROOM</string>
-    <string name="joinRoomText">JOIN ROOM</string>
-    <string name="closedRoomText">Closed room (Password protected)</string>
+    <string name="createRoomText">CREATE ROOM:</string>
+    <string name="joinRoomText">JOIN ROOM:</string>
+    <string name="closedRoomText">Closed Room</string>
     <string name="openRoomText">Open Room</string>
     <string name="RoomName">Room Name</string>
     <string name="roomCreated">Room Created!</string>
@@ -65,5 +66,6 @@
     <string name="NO">NO</string>
     <string name="OPEN">OPEN ROOM</string>
     <string name="CLOSED">CLOSED ROOM</string>
+
 
 </resources>
