@@ -273,6 +273,28 @@ class GameActivity : AppCompatActivity() {
         postRef.addChildEventListener(childEventListenerForGame)
     }
 
+    private fun updateDrawingValue() {
+        var curScore = prefs.getInt(getString(R.string.scoreOfCurPlayer), 0)
+        curScore += 2
+        prefs.edit().putInt(getString(R.string.scoreOfCurPlayer), curScore).apply()
+        database.child(getString(R.string.rooms)).child(reference.toString())
+            .child(getString(R.string.Players))
+            .child(userId).child(getString(R.string.score)).setValue(curScore)
+        for (i in 0 until playersList.size) {
+            if (userId == playersList[i].UID) {
+                playersList[i].score = curScore
+            }
+        }
+    }
+
+    private fun updateScoreToLocalList(playerInfoObj: playerInfo) {
+        for (i in 0 until playersList.size) {
+            if (playerInfoObj.UID.toString() == playersList[i].UID) {
+                playersList[i].score = playerInfoObj.score
+            }
+        }
+    }
+
     /** Player event listener in a room. */
     private fun playerEventListener() {
         playerReference = database.child(getString(R.string.rooms)).child(reference.toString())
@@ -299,10 +321,13 @@ class GameActivity : AppCompatActivity() {
 
             override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
                 val playerInfoObj = snapshot.getValue<playerInfo>()
-                for (i in 0 until playersList.size) {
-                    if (playerInfoObj?.UID.toString() == playersList[i].UID) {
-                        playersList[i].score = playerInfoObj!!.score
+                if (host == 1) {
+                    if (playerInfoObj?.UID.toString() != userId) {
+                        updateDrawingValue()
+                        updateScoreToLocalList(playerInfoObj!!)
                     }
+                } else {
+                    updateScoreToLocalList(playerInfoObj!!)
                 }
             }
 
@@ -533,6 +558,7 @@ class GameActivity : AppCompatActivity() {
 
     }
 
+
     override fun onResume() {
         super.onResume()
         backButtonPressedBoolean = false
@@ -600,7 +626,6 @@ class GameActivity : AppCompatActivity() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-
             }
         })
     }
