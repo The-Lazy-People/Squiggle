@@ -12,7 +12,7 @@
         android:fontFamily="@font/arbutus"
         android:text="Players:"
         android:textColor="#040404"
-        android:textSize="30sp"
+        android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

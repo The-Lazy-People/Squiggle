@@ -16,15 +16,16 @@
             android:id="@+id/textView8"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="24dp"
             android:fontFamily="@font/cinzel_black"
             android:text="@string/createRoomText"
             android:textColor="@color/Apricot"
             android:textSize="24sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.464"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/logout" />
+            app:layout_constraintTop_toBottomOf="@+id/textView9" />
 
         <EditText
             android:id="@+id/roomName"
@@ -34,6 +35,7 @@
             android:ems="10"
             android:hint="@string/RoomName"
             android:inputType="text"
+            android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView8" />
@@ -46,6 +48,7 @@
             android:ems="10"
             android:hint="@string/enterPassword"
             android:inputType="numberPassword"
+            android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/passwordSwitchInfo" />
@@ -56,7 +59,7 @@
             android:layout_height="wrap_content"
             android:backgroundTint="@color/Apricot"
             android:text="Create"
-            android:textSize="20sp"
+            android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/roomName"
             app:layout_constraintStart_toStartOf="@+id/roomName"
@@ -70,7 +73,7 @@
             android:layout_marginTop="16dp"
             android:text="@string/closedRoomText"
             android:textColor="@color/Apricot"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="@+id/roomName"
             app:layout_constraintStart_toStartOf="@+id/roomName"
@@ -109,10 +112,22 @@
             android:adjustViewBounds="true"
             android:clickable="true"
             android:foregroundTint="@android:color/black"
-            app:tint="@color/yellow"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/info" />
+            app:srcCompat="@drawable/info"
+            app:tint="@color/yellow" />
+
+        <TextView
+            android:id="@+id/textView9"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Title"
+            android:textColor="#060606"
+            android:textSize="30sp"
+            app:layout_constraintBottom_toBottomOf="@+id/logout"
+            app:layout_constraintEnd_toStartOf="@+id/info"
+            app:layout_constraintStart_toEndOf="@+id/logout"
+            app:layout_constraintTop_toBottomOf="@+id/logout" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -132,8 +147,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/textView2"
             app:layout_constraintStart_toStartOf="@+id/textView2"
-            app:layout_constraintTop_toBottomOf="@+id/textView2"
-            app:layout_constraintVertical_bias="0.100000024"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.55"
             app:srcCompat="@drawable/enter"
             app:tint="@android:color/white" />
 
@@ -141,15 +156,17 @@
             android:id="@+id/textView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
+            android:layout_marginBottom="16dp"
             android:fontFamily="@font/cinzel_black"
             android:text="@string/joinRoomText"
             android:textColor="#FBF9F9"
             android:textSize="24sp"
             android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/joinRoom"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

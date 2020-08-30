@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/relativeLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:nestedScrollingEnabled="false"
+    app:layout_insetEdge="top">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/coordinatorLayout"
@@ -69,18 +71,6 @@
         app:layout_constraintTop_toTopOf="@+id/editText" />
 
     <ImageButton
-        android:id="@+id/paint_brush"
-        android:layout_width="70dp"
-        android:layout_height="0dp"
-        android:layout_marginEnd="8dp"
-        android:backgroundTint="@android:color/white"
-        android:scaleType="fitStart"
-        app:layout_constraintBottom_toTopOf="@+id/coordinatorLayout"
-        app:layout_constraintEnd_toStartOf="@+id/eraser"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/paint_brush" />
-
-    <ImageButton
         android:id="@+id/eraser"
         android:layout_width="70dp"
         android:layout_height="0dp"
@@ -102,5 +92,43 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_baseline_group_24" />
+
+    <TextView
+        android:id="@+id/timer_xml"
+        android:layout_width="43dp"
+        android:layout_height="44dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="center"
+        android:singleLine="false"
+        android:text="10"
+        android:textColor="#000000"
+        app:autoSizeTextType="uniform"
+        app:layout_constraintBottom_toTopOf="@+id/coordinatorLayout"
+        app:layout_constraintEnd_toStartOf="@+id/eraser"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/peoples"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/word_xml"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="center"
+        android:singleLine="true"
+        android:text="Adarsh"
+        android:textColor="#010101"
+        app:autoSizeMaxTextSize="20sp"
+        app:autoSizeMinTextSize="12sp"
+        app:autoSizeStepGranularity="1sp"
+        app:autoSizeTextType="uniform"
+        app:layout_constraintBottom_toTopOf="@+id/coordinatorLayout"
+        app:layout_constraintEnd_toStartOf="@+id/eraser"
+        app:layout_constraintStart_toEndOf="@+id/timer_xml"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
