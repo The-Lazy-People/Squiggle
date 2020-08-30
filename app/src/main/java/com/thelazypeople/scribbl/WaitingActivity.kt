@@ -37,8 +37,14 @@ class WaitingActivity : AppCompatActivity() {
     private var goToMainActivityBoolean: Boolean = false
     private var goToGameActivityBoolean: Boolean = false
     private var backButtonPressedBoolean: Boolean = false
+    private lateinit var valueEventListenerForCountdown: ValueEventListener
+    private lateinit var countdownReference: DatabaseReference
+    private lateinit var valueEventListenerForRounds: ValueEventListener
+    private lateinit var roundsReference: DatabaseReference
     private lateinit var timerSpinner: Spinner
     private lateinit var roundsSpinner: Spinner
+    private lateinit var timerArrayAdapter: ArrayAdapter<CharSequence>
+    private lateinit var roundsArrayAdapter: ArrayAdapter<CharSequence>
 
     var playerCount: Long = 0
     private val baseCount: Long = 1
@@ -60,9 +66,11 @@ class WaitingActivity : AppCompatActivity() {
         val layoutManager = LinearLayoutManager(this)
         players_recycler.layoutManager = layoutManager
 
-
+        /** Settings for Non Host Players */
         if (host == 0) {
             disableButtonsForNonHost()
+            countdownEventListenerForNonHost()
+            roundsEventListenerForNonHost()
         }
 
         /** Timer Spinner to set the guessing time of each turn in seconds. */
@@ -80,7 +88,8 @@ class WaitingActivity : AppCompatActivity() {
         /** Host can start the game by pressing this button. */
         btnStart.setOnClickListener {
             database.child(getString(R.string.rooms)).child(reference)
-                .child(getString(R.string.info)).child(getString(R.string.gamestarted)).setValue(GAME_STARTED_CONST)
+                .child(getString(R.string.info)).child(getString(R.string.gamestarted))
+                .setValue(GAME_STARTED_CONST)
             routeToGameActivity()
             Toast.makeText(this, getString(R.string.startedGameText), Toast.LENGTH_SHORT).show()
         }
@@ -96,6 +105,42 @@ class WaitingActivity : AppCompatActivity() {
         draw_time_spin.isClickable = false
         draw_time_spin.isActivated = false
         draw_time_spin.isEnabled = false
+    }
+
+    /** Countdown Timer Event Listener for Non Host Players */
+    private fun countdownEventListenerForNonHost() {
+        countdownReference =
+            database.child(getString(R.string.rooms)).child(reference)
+                .child(getString(R.string.info))
+                .child(getString(R.string.countdown))
+        valueEventListenerForCountdown = object : ValueEventListener {
+            override fun onCancelled(error: DatabaseError) {}
+
+            override fun onDataChange(snapshot: DataSnapshot) {
+                timeLimit = snapshot.getValue<String>().toString()
+                val timerSpinnerPosition: Int = timerArrayAdapter.getPosition(timeLimit)
+                timerSpinner.setSelection(timerSpinnerPosition)
+            }
+        }
+        countdownReference.addValueEventListener(valueEventListenerForCountdown)
+    }
+
+    /** Rounds Event Listener for Non Host Players */
+    private fun roundsEventListenerForNonHost() {
+        roundsReference =
+            database.child(getString(R.string.rooms)).child(reference)
+                .child(getString(R.string.info))
+                .child(getString(R.string.rounds))
+        valueEventListenerForRounds = object : ValueEventListener {
+            override fun onCancelled(error: DatabaseError) {}
+
+            override fun onDataChange(snapshot: DataSnapshot) {
+                noOfRounds = snapshot.getValue<String>().toString()
+                val roundsSpinnerPosition: Int = roundsArrayAdapter.getPosition(noOfRounds)
+                roundsSpinner.setSelection(roundsSpinnerPosition)
+            }
+        }
+        roundsReference.addValueEventListener(valueEventListenerForRounds)
     }
 
     /** Game Started Tracking For Non Host Players. */
@@ -174,17 +219,21 @@ class WaitingActivity : AppCompatActivity() {
     /** Timer Spinner to set the guessing time of each turn in seconds. */
     private fun setForTimerSpinner() {
         timerSpinner = findViewById(R.id.draw_time_spin)
-        ArrayAdapter.createFromResource(
+        timerArrayAdapter = ArrayAdapter.createFromResource(
             this,
             R.array.draw_time_array,
             android.R.layout.simple_spinner_item
-        ).also { adapter ->
+        )
+        timerArrayAdapter.also { adapter ->
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             timerSpinner.adapter = adapter
         }
         timerSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 timeLimit = resources.getStringArray(R.array.draw_time_array)[0]
+                database.child(getString(R.string.rooms)).child(reference)
+                    .child(getString(R.string.info)).child(getString(R.string.countdown))
+                    .setValue(timeLimit)
             }
 
             override fun onItemSelected(
@@ -194,6 +243,9 @@ class WaitingActivity : AppCompatActivity() {
                 id: Long
             ) {
                 timeLimit = resources.getStringArray(R.array.draw_time_array)[position]
+                database.child(getString(R.string.rooms)).child(reference)
+                    .child(getString(R.string.info)).child(getString(R.string.countdown))
+                    .setValue(timeLimit)
             }
         }
     }
@@ -201,11 +253,13 @@ class WaitingActivity : AppCompatActivity() {
     /** Rounds Spinner to set the number of Total rounds in a Game. */
     private fun setForRoundsSpinner() {
         roundsSpinner = findViewById(R.id.rounds_spin)
-        ArrayAdapter.createFromResource(
+        roundsArrayAdapter = ArrayAdapter.createFromResource(
             this,
             R.array.rounds_array,
             android.R.layout.simple_spinner_item
-        ).also { adapter ->
+        )
+
+        roundsArrayAdapter.also { adapter ->
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             roundsSpinner.adapter = adapter
         }
@@ -213,6 +267,9 @@ class WaitingActivity : AppCompatActivity() {
         roundsSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 noOfRounds = resources.getStringArray(R.array.rounds_array)[0]
+                database.child(getString(R.string.rooms)).child(reference)
+                    .child(getString(R.string.info)).child(getString(R.string.rounds))
+                    .setValue(noOfRounds)
             }
 
             override fun onItemSelected(
@@ -222,6 +279,9 @@ class WaitingActivity : AppCompatActivity() {
                 id: Long
             ) {
                 noOfRounds = resources.getStringArray(R.array.rounds_array)[position]
+                database.child(getString(R.string.rooms)).child(reference)
+                    .child(getString(R.string.info)).child(getString(R.string.rounds))
+                    .setValue(noOfRounds)
             }
 
         }
