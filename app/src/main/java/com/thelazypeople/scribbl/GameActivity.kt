@@ -71,6 +71,8 @@ class GameActivity : AppCompatActivity() {
     var colorProvider = mutableListOf<Boolean>() // colored List of Players for Navigational Drawer
     var wordsCollection = WordCollectionData().wordsCollection
     var colorSetForChats = mutableSetOf<String>() //contains UID of colored players in Chats.
+    var hostUID: String = ""
+    var numGuesPlayer = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -329,6 +331,15 @@ class GameActivity : AppCompatActivity() {
                 } else {
                     updateScoreToLocalList(playerInfoObj!!)
                 }
+
+                if (serverHost == 1) {
+                    if (playerInfoObj?.UID != hostUID) {
+                        numGuesPlayer++
+                        if (numGuesPlayer == playersList.size - 1) {
+                            cancelCountdownAndnextChance()
+                        }
+                    }
+                }
             }
 
             override fun onChildRemoved(snapshot: DataSnapshot) {
@@ -356,6 +367,20 @@ class GameActivity : AppCompatActivity() {
 
         }
         playerReference.addChildEventListener(childEventListenerForPlayers)
+    }
+
+    private fun cancelCountdownAndnextChance() {
+//        database.child(getString(R.string.rooms)).child(reference.toString())
+//            .child(getString(R.string.info))
+//            .child(getString(R.string.chanceChange)).setValue(1)
+//        chatUploadToDatabase("Correct word is - $guessingWord")
+        if (booleanForCountdownStartedOrNot)
+        {
+            countdownTimer.cancel()
+            countdownTimer.onFinish()
+        }
+
+        booleanForCountdownStartedOrNot = false
     }
 
     /** Chance Change Event Listener of a room. */
@@ -490,6 +515,8 @@ class GameActivity : AppCompatActivity() {
             roundTillNow++
             indexOfChance = 0
         }
+        hostUID = playersList[indexOfChance].UID!!
+        numGuesPlayer = 0
         paintView.clear()
         postRef.push().setValue(Information(10001f, 10001f, 3))
         paintView.isclear = 1
