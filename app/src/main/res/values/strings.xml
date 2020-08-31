@@ -50,8 +50,8 @@
     <string name="logOut_alert">Do you want to Log Out?</string>
 
     <!--    createRoom and joinRoom -->
-    <string name="createRoomText">CREATE ROOM:</string>
-    <string name="joinRoomText">JOIN ROOM:</string>
+    <string name="createRoomText">CREATE ROOM</string>
+    <string name="joinRoomText">JOIN ROOM</string>
     <string name="closedRoomText">Closed Room</string>
     <string name="openRoomText">Open Room</string>
     <string name="RoomName">Room Name</string>

@@ -13,7 +13,10 @@
     <color name="PurpleShadow">#091f36</color>
     <color name="GreyBlueLeaf">#4f5f76</color>
 
-    <color name="Apricot">#F7882F</color>
+    <!--<color name="Apricot">#F7882F</color>
+    -->
+    <color name="Apricot">#F9A826</color>
+    <color name="heading">#0B7289</color>
     <color name="LittleTransparent">#99000000</color>
     <color name="yellow">#ffc107</color>
 </resources>

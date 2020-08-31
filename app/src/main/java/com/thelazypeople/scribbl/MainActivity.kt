@@ -4,10 +4,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat.startActivity
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
             getString(R.string.packageName), Context.MODE_PRIVATE
         )
 
-        passwordSwitchButton.setOnCheckedChangeListener { _, isChecked ->
+     /*   passwordSwitchButton.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 closedRoomPassword.visibility = View.VISIBLE
                 passwordSwitchInfo.text = getString(R.string.closedRoomText)
@@ -57,15 +57,15 @@ class MainActivity : AppCompatActivity() {
                 closedRoomPassword.visibility = View.GONE
                 passwordSwitchInfo.text = getString(R.string.openRoomText)
             }
-        }
+        }*/
 
-        joinRoom.setOnClickListener {
+        join_room.setOnClickListener {
             val intent = Intent(this, RoomListActivity::class.java)
             startActivity(intent)
         }
 
-        createRoom.setOnClickListener {
-            if (roomName.text.isNullOrEmpty() || passwordSwitchButton.isChecked && closedRoomPassword.text.isNullOrEmpty()) {
+        create_room.setOnClickListener {
+            /*if (roomName.text.isNullOrEmpty() || passwordSwitchButton.isChecked && closedRoomPassword.text.isNullOrEmpty()) {
                 Toast.makeText(this, getString(R.string.fieldEmpty), Toast.LENGTH_LONG).show()
             } else {
                 val userId: String? =
@@ -98,13 +98,13 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     Toast.makeText(this, getString(R.string.userNotFoundError), Toast.LENGTH_SHORT)
                         .show()
-                }
+                }*/
             }
         }
 
     }
 
-    private fun createAndJoinRoom(referenceUuidPlusTimestamp: String) {
+  /*  private fun createAndJoinRoom(referenceUuidPlusTimestamp: String) {
         val intent = Intent(this, WaitingActivity::class.java)
         intent.putExtra(getString(R.string.reference), referenceUuidPlusTimestamp)
         intent.putExtra(getString(R.string.host), 1)
@@ -126,5 +126,5 @@ class MainActivity : AppCompatActivity() {
             .child(userId).setValue(playerInfo(userName, 0, userId))
         roomReference.child(referenceUuidPlusTimestamp).child(getString(R.string.server))
             .setValue(userId)
-    }
-}
+    }*/
+//}
