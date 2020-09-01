@@ -106,6 +106,7 @@
             android:id="@+id/imageView3"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:scaleType="fitXY"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -143,7 +144,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:fontFamily="@font/aclonica"
+            android:fontFamily="@font/audiowide"
             android:text="SCRIBBLE"
             android:textColor="@color/heading"
             android:textSize="36sp"
@@ -166,10 +167,26 @@
             app:layout_constraintTop_toBottomOf="@+id/textView9"
             app:srcCompat="@drawable/ic_undraw_innovative_b409" />
 
+        <LinearLayout
+            android:id="@+id/click_create_room"
+            android:layout_width="0dp"
+            android:layout_height="86dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/mid_pic"></LinearLayout>
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/join_here"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@color/Apricot"

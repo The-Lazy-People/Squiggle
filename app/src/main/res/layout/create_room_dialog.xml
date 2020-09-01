@@ -3,10 +3,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="@color/GreyBlueLeaf">
+
+    <ImageView
+        android:id="@+id/close_btn"
+        android:layout_width="42dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="#DF3838"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_close_black_24dp"
+        app:tint="#F3EFEF" />
 
     <TextView
-        android:id="@+id/passwordSwitchInfo2"
+        android:id="@+id/passwordSwitchInfo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -15,26 +28,29 @@
         android:textColor="@color/Apricot"
         android:textSize="16sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@+id/roomName2"
-        app:layout_constraintStart_toStartOf="@+id/roomName2"
-        app:layout_constraintTop_toBottomOf="@+id/roomName2" />
+        app:layout_constraintEnd_toEndOf="@+id/room_name"
+        app:layout_constraintStart_toStartOf="@+id/room_name"
+        app:layout_constraintTop_toBottomOf="@+id/room_name" />
 
     <EditText
-        android:id="@+id/closedRoomPassword2"
+        android:id="@+id/closed_room_password"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
+        android:backgroundTint="@android:color/white"
         android:ems="10"
         android:hint="@string/enterPassword"
         android:inputType="numberPassword"
+        android:textColor="@android:color/white"
+        android:textColorHint="@android:color/white"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="@+id/textView10"
         app:layout_constraintHorizontal_bias="0.473"
         app:layout_constraintStart_toStartOf="@+id/textView10"
-        app:layout_constraintTop_toBottomOf="@+id/passwordSwitchInfo2" />
+        app:layout_constraintTop_toBottomOf="@+id/passwordSwitchInfo" />
 
     <Button
-        android:id="@+id/createRoom2"
+        android:id="@+id/create_room_go"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="108dp"
@@ -44,16 +60,19 @@
         app:layout_constraintEnd_toEndOf="@+id/textView10"
         app:layout_constraintHorizontal_bias="0.489"
         app:layout_constraintStart_toStartOf="@+id/textView10"
-        app:layout_constraintTop_toBottomOf="@+id/passwordSwitchInfo2" />
+        app:layout_constraintTop_toBottomOf="@+id/passwordSwitchInfo" />
 
     <EditText
-        android:id="@+id/roomName2"
+        android:id="@+id/room_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
+        android:backgroundTint="@android:color/white"
         android:ems="10"
         android:hint="@string/RoomName"
         android:inputType="text"
+        android:textColor="@android:color/white"
+        android:textColorHint="@android:color/white"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="@+id/textView10"
         app:layout_constraintHorizontal_bias="0.473"
@@ -75,16 +94,16 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Switch
-        android:id="@+id/passwordSwitchButton2"
+        android:id="@+id/password_switch_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:checked="true"
         android:thumbTint="@color/Apricot"
         android:trackTint="@color/Apricot"
-        app:layout_constraintEnd_toStartOf="@+id/passwordSwitchInfo2"
-        app:layout_constraintStart_toStartOf="@+id/roomName2"
-        app:layout_constraintTop_toTopOf="@+id/passwordSwitchInfo2" />
+        app:layout_constraintEnd_toStartOf="@+id/passwordSwitchInfo"
+        app:layout_constraintStart_toStartOf="@+id/room_name"
+        app:layout_constraintTop_toTopOf="@+id/passwordSwitchInfo" />
 
     <View
         android:id="@+id/divider2"
@@ -96,6 +115,6 @@
         android:background="@android:color/transparent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/createRoom2" />
+        app:layout_constraintTop_toBottomOf="@+id/create_room_go" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

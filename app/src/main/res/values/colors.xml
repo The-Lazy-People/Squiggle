@@ -15,8 +15,12 @@
 
     <!--<color name="Apricot">#F7882F</color>
     -->
+    <color name="white">#FFFFFF</color>
     <color name="Apricot">#F9A826</color>
     <color name="heading">#0B7289</color>
     <color name="LittleTransparent">#99000000</color>
     <color name="yellow">#ffc107</color>
+    <color name="lightBackground">#EBF6F2</color>
+    <color name="wavyBlue">#A9D7E1</color>
+    <color name="black">#000</color>
 </resources>
