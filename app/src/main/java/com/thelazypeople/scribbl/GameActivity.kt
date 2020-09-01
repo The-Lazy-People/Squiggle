@@ -20,6 +20,7 @@ import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import com.thelazypeople.scribbl.adapters.ChatAdapter
 import com.thelazypeople.scribbl.adapters.PlayingPlayersAdapter
+import com.thelazypeople.scribbl.adapters.WinningListAdapters
 import com.thelazypeople.scribbl.model.ChatText
 import com.thelazypeople.scribbl.model.Information
 import com.thelazypeople.scribbl.model.playerInfo
@@ -27,6 +28,8 @@ import kotlinx.android.synthetic.main.activity_game.*
 import kotlinx.android.synthetic.main.chats_preview.*
 import kotlinx.android.synthetic.main.choose_word.*
 import kotlinx.android.synthetic.main.game_content.*
+import kotlinx.android.synthetic.main.dialog_winners.*
+
 
 /** [GameActivity] is where actual Scribble game commence. */
 class GameActivity : AppCompatActivity() {
@@ -95,10 +98,9 @@ class GameActivity : AppCompatActivity() {
             drawerLayout.openDrawer(GravityCompat.START)
         }
 
-
         prefs = this.getSharedPreferences(
-            getString(R.string.packageName), Context.MODE_PRIVATE
-        )
+            getString(R.string.packageName), Context.MODE_PRIVATE)
+
         prefs.edit().putInt(getString(R.string.scoreOfCurPlayer), 0).apply()
         userId = prefs.getString(getString(R.string.userId), getString(R.string.EMPTY))!!
         userName = prefs.getString(getString(R.string.userName), getString(R.string.EMPTY))!!
@@ -185,6 +187,30 @@ class GameActivity : AppCompatActivity() {
         }
 
 
+    }
+
+    private fun scoreBoard(){
+        val dialog = Dialog(this)
+        dialog.setContentView(R.layout.dialog_winners)
+
+        val winnersList = playersList
+        winnersList.sortedWith(compareBy({it.score}, {it.Name})).reversed()
+
+        val window = dialog.window
+        window?.setLayout(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
+        mDialog.show()
+        val layoutManager = LinearLayoutManager(this)
+        mDialog.winners_list.layoutManager = layoutManager
+        val winningListAdapters = WinningListAdapters(winnersList)
+        mDialog.winners_list.adapter = winningListAdapters
+
+        mDialog.return_back.setOnClickListener {
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        }
     }
 
     /** Chat event listener for a room. */
@@ -392,9 +418,7 @@ class GameActivity : AppCompatActivity() {
             override fun onCancelled(error: DatabaseError) {
 
             }
-
             override fun onDataChange(snapshot: DataSnapshot) {
-
                 if (snapshot.value.toString() == "1") {
                     if (serverHost == 1) {
                         changeUserChance()
@@ -411,9 +435,7 @@ class GameActivity : AppCompatActivity() {
             database.child(getString(R.string.rooms)).child(reference.toString())
                 .child(getString(R.string.info)).child(getString(R.string.chanceUID))
         valueEventListenerForWhoesChance = object : ValueEventListener {
-            override fun onCancelled(error: DatabaseError) {
-
-            }
+            override fun onCancelled(error: DatabaseError) {}
 
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.value.toString() == userId) {
@@ -479,12 +501,11 @@ class GameActivity : AppCompatActivity() {
             else break
         }
 
-
         val window = mDialog.window
         window?.setLayout(
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.WRAP_CONTENT
-        );
+        )
         window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         mDialog.setCanceledOnTouchOutside(false) // prevent dialog box from getting dismissed on outside touch
         mDialog.setCancelable(false)  //prevent dialog box from getting dismissed on back key pressed
@@ -569,7 +590,6 @@ class GameActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-
         if (backButtonPressedBoolean) {
             deleteCurrentPlayer()
             deleteCurrentRoomIfNoOtherPlayerRemains()
@@ -582,9 +602,7 @@ class GameActivity : AppCompatActivity() {
             deleteCurrentPlayer()
             deleteCurrentRoomIfNoOtherPlayerRemains()
         }
-
     }
-
 
     override fun onResume() {
         super.onResume()
@@ -651,9 +669,7 @@ class GameActivity : AppCompatActivity() {
                     routeToMainActivity()
                 }
             }
-
-            override fun onCancelled(error: DatabaseError) {
-            }
+            override fun onCancelled(error: DatabaseError) {}
         })
     }
 }
