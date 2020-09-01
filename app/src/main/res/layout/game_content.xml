@@ -5,7 +5,7 @@
     android:id="@+id/relativeLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#7CADDD"
+    android:background="@color/lightBackground"
     android:nestedScrollingEnabled="false"
     app:layout_insetEdge="top">
 
@@ -64,6 +64,7 @@
         android:layout_marginStart="32dp"
         android:layout_marginEnd="16dp"
         android:layout_weight="1"
+        android:backgroundTint="@color/Apricot"
         android:text="Send"
         app:layout_constraintBottom_toBottomOf="@+id/editText"
         app:layout_constraintEnd_toEndOf="parent"
@@ -75,7 +76,7 @@
         android:id="@+id/eraser"
         android:layout_width="70dp"
         android:layout_height="0dp"
-        android:backgroundTint="@color/LittleTransparent"
+        android:backgroundTint="@android:color/transparent"
         android:scaleType="fitStart"
         app:layout_constraintBottom_toTopOf="@+id/coordinatorLayout"
         app:layout_constraintEnd_toEndOf="parent"

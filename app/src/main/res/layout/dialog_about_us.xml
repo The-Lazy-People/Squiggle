@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    style="@style/AppThemeBlueAccent"
     android:background="@color/wavyBlue">
 
     <ImageView
@@ -51,7 +52,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="@string/thelazypeople"
-        style="@style/AppThemeBlueAccent"
+        android:textColorLink="@color/black"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="@+id/textView8"
         app:layout_constraintTop_toBottomOf="@+id/textView8" />
@@ -75,7 +76,7 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
         android:text="@string/abhishek"
-        style="@style/AppThemeBlueAccent"
+        android:textColorLink="@color/black"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView3" />
@@ -87,7 +88,7 @@
         android:layout_marginTop="24dp"
         android:text="@string/adarsh"
         android:textSize="18sp"
-        style="@style/AppThemeBlueAccent"
+        android:textColorLink="@color/black"
         app:layout_constraintStart_toStartOf="@+id/guideline4"
         app:layout_constraintTop_toBottomOf="@+id/textView3" />
 
@@ -99,7 +100,7 @@
         android:layout_marginTop="8dp"
         android:text="@string/ayushi"
         android:textSize="18sp"
-        style="@style/AppThemeBlueAccent"
+        android:textColorLink="@color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/abhishek" />
 
@@ -109,7 +110,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="@string/sayantan"
-        style="@style/AppThemeBlueAccent"
+        android:textColorLink="@color/black"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="@+id/guideline4"
         app:layout_constraintTop_toBottomOf="@+id/adarsh" />
