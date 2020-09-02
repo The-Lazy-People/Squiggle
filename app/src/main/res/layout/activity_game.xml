@@ -18,23 +18,25 @@
         android:layout_height="match_parent"
         android:fitsSystemWindows="false"
         android:layout_gravity="start">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@color/lightBackground"
             android:orientation="vertical">
 
-            <include layout="@layout/layout_header"
+            <include
                 android:id="@+id/heder_main"
-                android:layout_margin="8dp"
+                layout="@layout/layout_header"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_width="match_parent" />
+                android:layout_margin="8dp" />
 
             <androidx.recyclerview.widget.RecyclerView
-                android:layout_marginTop="8dp"
                 android:id="@+id/playing_players"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                />
+                android:layout_marginTop="8dp" />
 
         </LinearLayout>
     </com.google.android.material.navigation.NavigationView>
