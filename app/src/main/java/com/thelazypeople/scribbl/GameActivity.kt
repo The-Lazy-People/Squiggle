@@ -29,6 +29,7 @@ import kotlinx.android.synthetic.main.chats_preview.*
 import kotlinx.android.synthetic.main.choose_word.*
 import kotlinx.android.synthetic.main.game_content.*
 import kotlinx.android.synthetic.main.dialog_winners.*
+import kotlinx.android.synthetic.main.layout_header.*
 
 
 /** [GameActivity] is where actual Scribble game commence. */
@@ -76,6 +77,8 @@ class GameActivity : AppCompatActivity() {
     var colorSetForChats = mutableSetOf<String>() //contains UID of colored players in Chats.
     var hostUID: String = ""
     var numGuesPlayer = 0
+    private lateinit var RoundChangeRef: DatabaseReference
+    private lateinit var valueEventListenerForRoundChange: ValueEventListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -103,7 +106,8 @@ class GameActivity : AppCompatActivity() {
         }
 
         prefs = this.getSharedPreferences(
-            getString(R.string.packageName), Context.MODE_PRIVATE)
+            getString(R.string.packageName), Context.MODE_PRIVATE
+        )
 
         prefs.edit().putInt(getString(R.string.scoreOfCurPlayer), 0).apply()
         userId = prefs.getString(getString(R.string.userId), getString(R.string.EMPTY))!!
@@ -155,6 +159,9 @@ class GameActivity : AppCompatActivity() {
             /** Word guessing Event Listener of a room. */
             guessingWordEventListener()
 
+            rounds_left.text="1"
+            changeCurrRound()
+
         }
 
         /** Chat send button. */
@@ -193,12 +200,12 @@ class GameActivity : AppCompatActivity() {
 
     }
 
-    private fun scoreBoard(){
+    private fun scoreBoard() {
         val dialog = Dialog(this)
         dialog.setContentView(R.layout.dialog_winners)
 
         val winnersList = playersList
-        winnersList.sortedWith(compareBy({it.score}, {it.Name})).reversed()
+        winnersList.sortedWith(compareBy({ it.score }, { it.Name })).reversed()
 
         val window = dialog.window
         window?.setLayout(
@@ -405,8 +412,7 @@ class GameActivity : AppCompatActivity() {
 //            .child(getString(R.string.info))
 //            .child(getString(R.string.chanceChange)).setValue(1)
 //        chatUploadToDatabase("Correct word is - $guessingWord")
-        if (booleanForCountdownStartedOrNot)
-        {
+        if (booleanForCountdownStartedOrNot) {
             countdownTimer.cancel()
             countdownTimer.onFinish()
         }
@@ -423,6 +429,7 @@ class GameActivity : AppCompatActivity() {
             override fun onCancelled(error: DatabaseError) {
 
             }
+
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.value.toString() == "1") {
                     if (serverHost == 1) {
@@ -532,13 +539,26 @@ class GameActivity : AppCompatActivity() {
 
     /** The next player to get the chance is decided through here. */
     private fun changeUserChance() {
+        var f=0
         database.child(getString(R.string.rooms)).child(reference.toString())
             .child(getString(R.string.info)).child(getString(R.string.chanceChange))
             .setValue(0)
+
         indexOfChance++
 
         if (indexOfChance >= playersList.size) {
+            //changeCurrRound()
             roundTillNow++
+            if(roundTillNow>=1)
+            {
+                f=1
+            }
+            if(f==1)
+            {
+                database.child(getString(R.string.rooms)).child(reference.toString())
+                    .child(getString(R.string.info)).child("currentRound")
+                    .setValue(roundTillNow+1)
+            }
             indexOfChance = 0
         }
         hostUID = playersList[indexOfChance].UID!!
@@ -558,6 +578,22 @@ class GameActivity : AppCompatActivity() {
         } else {
             chatUploadToDatabase("GAME OVER!")
         }
+    }
+
+    private fun changeCurrRound() {
+
+        RoundChangeRef=database.child(getString(R.string.rooms)).child(reference.toString())
+            .child(getString(R.string.info)).child("currentRound")
+
+        valueEventListenerForRoundChange = object : ValueEventListener {
+            override fun onCancelled(error: DatabaseError) {}
+
+            override fun onDataChange(snapshot: DataSnapshot) {
+                rounds_left.text=snapshot.value.toString()
+            }
+        }
+        RoundChangeRef.addValueEventListener(valueEventListenerForRoundChange)
+
     }
 
     /** Countdown timer for a round. */
@@ -674,6 +710,7 @@ class GameActivity : AppCompatActivity() {
                     routeToMainActivity()
                 }
             }
+
             override fun onCancelled(error: DatabaseError) {}
         })
     }
