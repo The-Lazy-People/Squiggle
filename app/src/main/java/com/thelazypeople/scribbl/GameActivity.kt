@@ -160,7 +160,9 @@ class GameActivity : AppCompatActivity() {
             guessingWordEventListener()
 
             rounds_left.text="1"
-            changeCurrRound()
+
+            /** For Displaying the current round */
+            changeCurrentRoundListener()
 
         }
 
@@ -539,7 +541,6 @@ class GameActivity : AppCompatActivity() {
 
     /** The next player to get the chance is decided through here. */
     private fun changeUserChance() {
-        var f=0
         database.child(getString(R.string.rooms)).child(reference.toString())
             .child(getString(R.string.info)).child(getString(R.string.chanceChange))
             .setValue(0)
@@ -549,16 +550,10 @@ class GameActivity : AppCompatActivity() {
         if (indexOfChance >= playersList.size) {
             //changeCurrRound()
             roundTillNow++
-            if(roundTillNow>=1)
-            {
-                f=1
-            }
-            if(f==1)
-            {
+                /** child of info created named as current round */
                 database.child(getString(R.string.rooms)).child(reference.toString())
                     .child(getString(R.string.info)).child("currentRound")
                     .setValue(roundTillNow+1)
-            }
             indexOfChance = 0
         }
         hostUID = playersList[indexOfChance].UID!!
@@ -580,7 +575,8 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
-    private fun changeCurrRound() {
+    /** displaying the current round*/
+    private fun changeCurrentRoundListener() {
 
         RoundChangeRef=database.child(getString(R.string.rooms)).child(reference.toString())
             .child(getString(R.string.info)).child("currentRound")
@@ -589,11 +585,12 @@ class GameActivity : AppCompatActivity() {
             override fun onCancelled(error: DatabaseError) {}
 
             override fun onDataChange(snapshot: DataSnapshot) {
+                if(snapshot.value!=null)
+                    //Updating the value of current round
                 rounds_left.text=snapshot.value.toString()
             }
         }
         RoundChangeRef.addValueEventListener(valueEventListenerForRoundChange)
-
     }
 
     /** Countdown timer for a round. */
