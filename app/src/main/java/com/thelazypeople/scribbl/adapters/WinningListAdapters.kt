@@ -23,6 +23,9 @@ class WinningListAdapters(
     override fun onBindViewHolder(holder: WinningViewHolder, position: Int) {
         holder.itemView.name_each_player2.text = players[position].Name
         holder.itemView.score_each_player2.text = players[position].score.toString()
+        var rank = (position+1).toString()
+        rank = "$rank."
+        holder.itemView.rank_each_player.text = rank
     }
 
     override fun getItemCount(): Int = players.size

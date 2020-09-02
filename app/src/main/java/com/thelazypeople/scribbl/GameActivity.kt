@@ -94,6 +94,10 @@ class GameActivity : AppCompatActivity() {
             }
         }
 
+        leave_btn.setOnClickListener {
+            Toast.makeText(this, "Need to be implemented", Toast.LENGTH_SHORT).show()
+        }
+
         peoples.setOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)
         }
@@ -201,13 +205,14 @@ class GameActivity : AppCompatActivity() {
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.WRAP_CONTENT
         )
-        mDialog.show()
+        dialog.show()
         val layoutManager = LinearLayoutManager(this)
-        mDialog.winners_list.layoutManager = layoutManager
+        dialog.winners_list.layoutManager = layoutManager
         val winningListAdapters = WinningListAdapters(winnersList)
-        mDialog.winners_list.adapter = winningListAdapters
+        dialog.winners_list.adapter = winningListAdapters
 
-        mDialog.return_back.setOnClickListener {
+        dialog.return_back.setOnClickListener {
+            dialog.dismiss()
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         }
