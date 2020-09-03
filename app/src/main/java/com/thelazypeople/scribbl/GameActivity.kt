@@ -549,15 +549,19 @@ class GameActivity : AppCompatActivity() {
             .setValue(0)
 
         indexOfChance++
-
+        Log.i("TIMER", "index $indexOfChance")
+        Log.i("TIMER", "listsize ${playersList.size}")
         if (indexOfChance >= playersList.size) {
             //changeCurrRound()
             roundTillNow++
+            indexOfChance = 0
+            Log.i("TIMER", "new index $indexOfChance")
+            Log.i("TIMER", "round $roundTillNow")
                 /** child of info created named as current round */
                 database.child(getString(R.string.rooms)).child(reference.toString())
                     .child(getString(R.string.info)).child("currentRound")
                     .setValue(roundTillNow+1)
-            indexOfChance = 0
+
         }
         hostUID = playersList[indexOfChance].UID!!
         numGuesPlayer = 0
@@ -565,12 +569,12 @@ class GameActivity : AppCompatActivity() {
         postRef.push().setValue(Information(10001f, 10001f, 3))
         paintView.isclear = 1
         if (roundTillNow < noOfRounds) {
-            Log.i("TIMER", "index $indexOfChance")
+            //Log.i("TIMER", "index $indexOfChance")
             Log.i("TIMER", playersList[indexOfChance].UID)
             database.child(getString(R.string.rooms)).child(reference.toString())
                 .child(getString(R.string.info)).child(getString(R.string.chanceUID))
                 .setValue(playersList[indexOfChance].UID)
-            Log.i("TIMER", "$roundTillNow - $noOfRounds")
+            Log.i("TIMER", "UID$roundTillNow - $noOfRounds")
             Log.i("TIMER", timeLimit.toString())
 
         } else {
@@ -591,6 +595,9 @@ class GameActivity : AppCompatActivity() {
                 if(snapshot.value!=null)
                     //Updating the value of current round
                 rounds_left.text=snapshot.value.toString()
+                if (snapshot.value.toString()==(noOfRounds+1).toString()){
+                    scoreBoard()
+                }
             }
         }
         RoundChangeRef.addValueEventListener(valueEventListenerForRoundChange)
