@@ -37,6 +37,7 @@ class GameActivity : AppCompatActivity() {
     private var wordGuessedOrNot: Boolean = false
     private lateinit var countdownTimer: CountDownTimer
     var booleanForCountdownStartedOrNot: Boolean = false
+    var booleanForCountdownCancelled: Boolean = false
     private var guessingWord: String = ""
     private lateinit var valueEventListenerForGuessingWord: ValueEventListener
     private lateinit var guessingWordRef: DatabaseReference
@@ -488,7 +489,9 @@ class GameActivity : AppCompatActivity() {
                 if (flag == 0) {
                     flag = 1
                 } else if (serverHost == 1) {
-                    countdown(timeLimit)
+                    if (!booleanForCountdownCancelled) {
+                        countdown(timeLimit)
+                    }
                 }
                 guessingWord = snapshot.value.toString()
             }
@@ -631,8 +634,10 @@ class GameActivity : AppCompatActivity() {
         if (backButtonPressedBoolean) {
             deleteCurrentPlayer()
             deleteCurrentRoomIfNoOtherPlayerRemains()
-            if (booleanForCountdownStartedOrNot)
+            if (booleanForCountdownStartedOrNot) {
                 countdownTimer.cancel()
+                booleanForCountdownCancelled=true
+            }
         }
 
         //called when user cancel/exit the application
