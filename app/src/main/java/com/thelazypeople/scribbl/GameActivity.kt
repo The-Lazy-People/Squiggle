@@ -209,8 +209,8 @@ class GameActivity : AppCompatActivity() {
         val dialog = Dialog(this)
         dialog.setContentView(R.layout.dialog_winners)
 
-        val winnersList = playersList
-        winnersList.sortedWith(compareBy({ it.score }, { it.Name })).reversed()
+        var winnersList : MutableList<playerInfo> = playersList.toMutableList()
+        winnersList =  winnersList.sortedWith(compareBy { it.score }).reversed().toMutableList()
 
         val window = dialog.window
         window?.setLayout(

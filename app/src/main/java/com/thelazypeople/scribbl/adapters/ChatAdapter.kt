@@ -27,10 +27,8 @@ class ChatAdapter(
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
         holder.itemView.username_person.text = chats[position].userName + ": "
-        if (colorSet.contains(chats[position].UID))
-            holder.itemView.username_person.setTextColor(Color.parseColor("#0D7612"))
-
         holder.itemView.text_person.text = chats[position].text
+
         if (chats[position].text == "word guessed!!")
             holder.itemView.text_person.setTextColor(Color.parseColor("#0F5C53"))
         else
