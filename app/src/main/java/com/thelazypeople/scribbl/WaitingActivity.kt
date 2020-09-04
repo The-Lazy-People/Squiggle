@@ -87,11 +87,15 @@ class WaitingActivity : AppCompatActivity() {
 
         /** Host can start the game by pressing this button. */
         btnStart.setOnClickListener {
-            database.child(getString(R.string.rooms)).child(reference)
-                .child(getString(R.string.info)).child(getString(R.string.gamestarted))
-                .setValue(GAME_STARTED_CONST)
-            routeToGameActivity()
-            Toast.makeText(this, getString(R.string.startedGameText), Toast.LENGTH_SHORT).show()
+            if(playerCount == baseCount){
+                Toast.makeText(this, getString(R.string.cannotEnterWithOnePlayer), Toast.LENGTH_LONG).show()
+            }else{
+                database.child(getString(R.string.rooms)).child(reference)
+                    .child(getString(R.string.info)).child(getString(R.string.gamestarted))
+                    .setValue(GAME_STARTED_CONST)
+                routeToGameActivity()
+                Toast.makeText(this, getString(R.string.startedGameText), Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

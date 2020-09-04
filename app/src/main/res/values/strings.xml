@@ -36,6 +36,10 @@
     <string name="userName">userName</string>
     <string name="startedGameText">Game Started</string>
     <string name="userNotFoundError">User ID not found Error!</string>
+    <string name="correct_word">Correct word is</string>
+    <string name="game">GAME</string>
+    <string name="over">OVER</string>
+    <string name="cannotEnterWithOnePlayer">Cannot start game with only one player in the room</string>
 
     <!--    Toggle buttons of Navigational Drawers -->
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -67,8 +71,7 @@
     <string name="OPEN">OPEN ROOM</string>
     <string name="CLOSED">CLOSED ROOM</string>
 
-    <!--       Creaters Details-->
-
+    <!--       Creators Details-->
     <string name="thelazypeople"><a href="https://github.com/The-Lazy-People">The Lazy People</a></string>
     <string name="adarsh"><a href="https://www.linkedin.com/in/2001adarshsingh/">Adarsh Singh</a></string>
     <string name="abhishek"><a href="https://www.linkedin.com/in/abhishek-yadav-aps/">Abhishek Yadav</a></string>

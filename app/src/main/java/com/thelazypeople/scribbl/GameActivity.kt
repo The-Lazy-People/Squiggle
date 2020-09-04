@@ -99,7 +99,9 @@ class GameActivity : AppCompatActivity() {
         }
 
         leave_btn.setOnClickListener {
-            Toast.makeText(this, "Need to be implemented", Toast.LENGTH_SHORT).show()
+            backButtonPressedBoolean = true
+            super.onBackPressed()
+            routeToMainActivity()
         }
 
         peoples.setOnClickListener {
@@ -223,8 +225,9 @@ class GameActivity : AppCompatActivity() {
 
         dialog.return_back.setOnClickListener {
             dialog.dismiss()
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
+            backButtonPressedBoolean = true
+            super.onBackPressed()
+            routeToMainActivity()
         }
     }
 
@@ -364,6 +367,17 @@ class GameActivity : AppCompatActivity() {
 
             override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
                 val playerInfoObj = snapshot.getValue<playerInfo>()
+                Log.i("CHILD CHANGE" , "INSIDE")
+                if (serverHost == 1) {
+                    Log.i("SERVER HOST" , "INSIDE")
+                    Log.i("HOST UID" , hostUID)
+                    Log.i("PLAYER UID" , playerInfoObj?.UID!!)
+                    if (playerInfoObj.UID != hostUID) {
+                        Log.i("INFO OBJ" , "INSIDE")
+                        numGuesPlayer++
+                        cancelCountdownAndNextChance()
+                    }
+                }
                 if (host == 1) {
                     if (playerInfoObj?.UID.toString() != userId) {
                         updateDrawingValue()
@@ -371,15 +385,6 @@ class GameActivity : AppCompatActivity() {
                     }
                 } else {
                     updateScoreToLocalList(playerInfoObj!!)
-                }
-
-                if (serverHost == 1) {
-                    if (playerInfoObj?.UID != hostUID) {
-                        numGuesPlayer++
-                        if (numGuesPlayer == playersList.size - 1) {
-                            cancelCountdownAndnextChance()
-                        }
-                    }
                 }
             }
 
@@ -410,17 +415,15 @@ class GameActivity : AppCompatActivity() {
         playerReference.addChildEventListener(childEventListenerForPlayers)
     }
 
-    private fun cancelCountdownAndnextChance() {
-//        database.child(getString(R.string.rooms)).child(reference.toString())
-//            .child(getString(R.string.info))
-//            .child(getString(R.string.chanceChange)).setValue(1)
-//        chatUploadToDatabase("Correct word is - $guessingWord")
-        if (booleanForCountdownStartedOrNot) {
-            countdownTimer.cancel()
-            countdownTimer.onFinish()
+    private fun cancelCountdownAndNextChance() {
+        if (numGuesPlayer == playersList.size - 1) {
+            Log.i("CANCEL COUNTDOWN" , booleanForCountdownStartedOrNot.toString())
+            if (booleanForCountdownStartedOrNot) {
+                countdownTimer.cancel()
+                countdownTimer.onFinish()
+            }
+            booleanForCountdownStartedOrNot = false
         }
-
-        booleanForCountdownStartedOrNot = false
     }
 
     /** Chance Change Event Listener of a room. */
@@ -578,7 +581,7 @@ class GameActivity : AppCompatActivity() {
             Log.i("TIMER", timeLimit.toString())
 
         } else {
-            chatUploadToDatabase("GAME OVER!")
+            gameOverUploadToDatabase()
         }
     }
 
@@ -611,7 +614,7 @@ class GameActivity : AppCompatActivity() {
                 database.child(getString(R.string.rooms)).child(reference.toString())
                     .child(getString(R.string.info))
                     .child(getString(R.string.chanceChange)).setValue(1)
-                chatUploadToDatabase("Correct word is - $guessingWord")
+                correctWordUploadToDatabase(guessingWord)
             }
 
             override fun onTick(p0: Long) {
@@ -625,6 +628,18 @@ class GameActivity : AppCompatActivity() {
     /** Chat messages upload to Firebase Database */
     private fun chatUploadToDatabase(cur_text: String) {
         val textObj = ChatText(userId, userName, cur_text)
+        postReference.push().setValue(textObj)
+    }
+
+    /** Correct Word upload to Firebase Database */
+    private fun correctWordUploadToDatabase(cur_text: String) {
+        val textObj = ChatText(userId, getString(R.string.correct_word), cur_text)
+        postReference.push().setValue(textObj)
+    }
+
+    /** Game Over upload to Firebase Database */
+    private fun gameOverUploadToDatabase() {
+        val textObj = ChatText(userId, getString(R.string.game) , getString(R.string.over))
         postReference.push().setValue(textObj)
     }
 
