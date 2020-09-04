@@ -162,7 +162,7 @@ class GameActivity : AppCompatActivity() {
             /** Word guessing Event Listener of a room. */
             guessingWordEventListener()
 
-            rounds_left.text="1"
+            rounds_left.text = "1"
 
             /** For Displaying the current round */
             changeCurrentRoundListener()
@@ -367,13 +367,13 @@ class GameActivity : AppCompatActivity() {
 
             override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
                 val playerInfoObj = snapshot.getValue<playerInfo>()
-                Log.i("CHILD CHANGE" , "INSIDE")
+                Log.i("CHILD CHANGE", "INSIDE")
                 if (serverHost == 1) {
-                    Log.i("SERVER HOST" , "INSIDE")
-                    Log.i("HOST UID" , hostUID)
-                    Log.i("PLAYER UID" , playerInfoObj?.UID!!)
+                    Log.i("SERVER HOST", "INSIDE")
+                    Log.i("HOST UID", hostUID)
+                    Log.i("PLAYER UID", playerInfoObj?.UID!!)
                     if (playerInfoObj.UID != hostUID) {
-                        Log.i("INFO OBJ" , "INSIDE")
+                        Log.i("INFO OBJ", "INSIDE")
                         numGuesPlayer++
                         cancelCountdownAndNextChance()
                     }
@@ -418,8 +418,9 @@ class GameActivity : AppCompatActivity() {
     private fun cancelCountdownAndNextChance() {
         if (numGuesPlayer == playersList.size - 1) {
             numGuesPlayer = 0
-            Log.i("CANCEL COUNTDOWN" , booleanForCountdownStartedOrNot.toString())
+            Log.i("CANCEL COUNTDOWN", booleanForCountdownStartedOrNot.toString())
             if (booleanForCountdownStartedOrNot) {
+                timer_xml.text = " "
                 countdownTimer.cancel()
                 countdownTimer.onFinish()
             }
@@ -441,6 +442,12 @@ class GameActivity : AppCompatActivity() {
                 if (snapshot.value.toString() == "1") {
                     if (serverHost == 1) {
                         changeUserChance()
+                    } else {
+                        if (booleanForCountdownStartedOrNot) {
+                            booleanForCountdownStartedOrNot = false
+                            timer_xml.text = " "
+                            countdownTimer.cancel()
+                        }
                     }
                 }
             }
@@ -492,11 +499,10 @@ class GameActivity : AppCompatActivity() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (flag == 0) {
                     flag = 1
-                } else if (serverHost == 1) {
-                    if (!booleanForCountdownCancelled) {
-                        countdown(timeLimit)
-                    }
+                } else if (!booleanForCountdownCancelled) {
+                    countdown(timeLimit)
                 }
+
                 guessingWord = snapshot.value.toString()
             }
         }
@@ -561,10 +567,10 @@ class GameActivity : AppCompatActivity() {
             indexOfChance = 0
             Log.i("TIMER", "new index $indexOfChance")
             Log.i("TIMER", "round $roundTillNow")
-                /** child of info created named as current round */
-                database.child(getString(R.string.rooms)).child(reference.toString())
-                    .child(getString(R.string.info)).child("currentRound")
-                    .setValue(roundTillNow+1)
+            /** child of info created named as current round */
+            database.child(getString(R.string.rooms)).child(reference.toString())
+                .child(getString(R.string.info)).child("currentRound")
+                .setValue(roundTillNow + 1)
 
         }
         hostUID = playersList[indexOfChance].UID!!
@@ -589,17 +595,17 @@ class GameActivity : AppCompatActivity() {
     /** displaying the current round*/
     private fun changeCurrentRoundListener() {
 
-        RoundChangeRef=database.child(getString(R.string.rooms)).child(reference.toString())
+        RoundChangeRef = database.child(getString(R.string.rooms)).child(reference.toString())
             .child(getString(R.string.info)).child("currentRound")
 
         valueEventListenerForRoundChange = object : ValueEventListener {
             override fun onCancelled(error: DatabaseError) {}
 
             override fun onDataChange(snapshot: DataSnapshot) {
-                if(snapshot.value!=null)
-                    //Updating the value of current round
-                rounds_left.text=snapshot.value.toString()
-                if (snapshot.value.toString()==(noOfRounds+1).toString()){
+                if (snapshot.value != null)
+                //Updating the value of current round
+                    rounds_left.text = snapshot.value.toString()
+                if (snapshot.value.toString() == (noOfRounds + 1).toString()) {
                     scoreBoard()
                 }
             }
@@ -610,16 +616,20 @@ class GameActivity : AppCompatActivity() {
     /** Countdown timer for a round. */
     private fun countdown(sec: Long) {
         countdownTimer = object : CountDownTimer(sec, 1000) {
+
             override fun onFinish() {
+                timer_xml.text = " "
+                if (serverHost == 1) {
+                    database.child(getString(R.string.rooms)).child(reference.toString())
+                        .child(getString(R.string.info))
+                        .child(getString(R.string.chanceChange)).setValue(1)
+                    correctWordUploadToDatabase(guessingWord)
+                }
                 Log.i("TIMER", "Finish")
-                database.child(getString(R.string.rooms)).child(reference.toString())
-                    .child(getString(R.string.info))
-                    .child(getString(R.string.chanceChange)).setValue(1)
-                correctWordUploadToDatabase(guessingWord)
             }
 
             override fun onTick(p0: Long) {
-                Log.i("TIMER", (p0 / 1000).toString())
+                timer_xml.text = (p0 / 1000).toString()
             }
         }
         countdownTimer.start()
@@ -640,7 +650,7 @@ class GameActivity : AppCompatActivity() {
 
     /** Game Over upload to Firebase Database */
     private fun gameOverUploadToDatabase() {
-        val textObj = ChatText(userId, getString(R.string.game) , getString(R.string.over))
+        val textObj = ChatText(userId, getString(R.string.game), getString(R.string.over))
         postReference.push().setValue(textObj)
     }
 
@@ -660,7 +670,7 @@ class GameActivity : AppCompatActivity() {
             if (booleanForCountdownStartedOrNot) {
                 countdownTimer.cancel()
             }
-            booleanForCountdownCancelled=true
+            booleanForCountdownCancelled = true
         }
 
         //called when user cancel/exit the application
