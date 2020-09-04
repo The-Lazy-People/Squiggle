@@ -99,8 +99,8 @@ class GameActivity : AppCompatActivity() {
         }
 
         leave_btn.setOnClickListener {
-            backButtonPressedBoolean = true
             super.onBackPressed()
+            backButtonPressedBoolean = true
             routeToMainActivity()
         }
 
@@ -225,8 +225,8 @@ class GameActivity : AppCompatActivity() {
 
         dialog.return_back.setOnClickListener {
             dialog.dismiss()
-            backButtonPressedBoolean = true
             super.onBackPressed()
+            backButtonPressedBoolean = true
             routeToMainActivity()
         }
     }
@@ -417,6 +417,7 @@ class GameActivity : AppCompatActivity() {
 
     private fun cancelCountdownAndNextChance() {
         if (numGuesPlayer == playersList.size - 1) {
+            numGuesPlayer = 0
             Log.i("CANCEL COUNTDOWN" , booleanForCountdownStartedOrNot.toString())
             if (booleanForCountdownStartedOrNot) {
                 countdownTimer.cancel()
@@ -658,8 +659,8 @@ class GameActivity : AppCompatActivity() {
             deleteCurrentRoomIfNoOtherPlayerRemains()
             if (booleanForCountdownStartedOrNot) {
                 countdownTimer.cancel()
-                booleanForCountdownCancelled=true
             }
+            booleanForCountdownCancelled=true
         }
 
         //called when user cancel/exit the application
@@ -687,6 +688,7 @@ class GameActivity : AppCompatActivity() {
         goToMainActivityBoolean = true
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
+        finish()
     }
 
     /** Deletion of current Player from the Room. */

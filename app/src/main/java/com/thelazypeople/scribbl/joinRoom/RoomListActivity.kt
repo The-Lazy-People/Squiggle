@@ -164,6 +164,7 @@ class RoomListActivity : AppCompatActivity() {
             intent.putExtra(getString(R.string.reference), roomList[position].reference)
             intent.putExtra(getString(R.string.host), 0)
             startActivity(intent)
+            finish()
             Toast.makeText(this, getString(R.string.roomJoined), Toast.LENGTH_SHORT).show()
         } else {
             Toast.makeText(this, getString(R.string.userNotFoundError), Toast.LENGTH_SHORT).show()
