@@ -293,6 +293,7 @@ class WaitingActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        Log.i("WAITING ACTIVITY", "ON RESUME");
         backButtonPressedBoolean = false
         goToGameActivityBoolean = false
         goToMainActivityBoolean = false
@@ -301,7 +302,7 @@ class WaitingActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-
+        Log.i("WAITING ACTIVITY", "ON PAUSE");
         if (backButtonPressedBoolean) {
             deleteCurrentPlayer()
             deleteCurrentRoomIfNoOtherPlayerRemains()
@@ -326,6 +327,7 @@ class WaitingActivity : AppCompatActivity() {
         goToGameActivityBoolean = false
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
+        finishAndRemoveTask()
     }
 
     /** Route to [GameActivity]. */
@@ -338,6 +340,7 @@ class WaitingActivity : AppCompatActivity() {
         intent.putExtra(getString(R.string.rounds), noOfRounds.toInt())
         intent.putExtra(getString(R.string.countdown), timeLimit.toLong())
         startActivity(intent)
+        finishAndRemoveTask()
     }
 
     /** Deletion of current Player from the Room. */

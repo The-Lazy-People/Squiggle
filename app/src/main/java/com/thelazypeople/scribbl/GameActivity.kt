@@ -664,6 +664,7 @@ class GameActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
+        Log.i("GAME ACTIVITY", "ON PAUSE");
         if (backButtonPressedBoolean) {
             deleteCurrentPlayer()
             deleteCurrentRoomIfNoOtherPlayerRemains()
@@ -682,6 +683,7 @@ class GameActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        Log.i("GAME ACTIVITY", "ON RESUME");
         backButtonPressedBoolean = false
         goToMainActivityBoolean = false
         checkRoomExistOrNot()
@@ -698,7 +700,7 @@ class GameActivity : AppCompatActivity() {
         goToMainActivityBoolean = true
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
-        finish()
+        finishAndRemoveTask()
     }
 
     /** Deletion of current Player from the Room. */

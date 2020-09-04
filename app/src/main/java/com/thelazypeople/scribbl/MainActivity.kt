@@ -167,6 +167,7 @@ class MainActivity : AppCompatActivity() {
        intent.putExtra(getString(R.string.reference), referenceUuidPlusTimestamp)
        intent.putExtra(getString(R.string.host), 1)
        startActivity(intent)
+       finish()
        Toast.makeText(this, getString(R.string.roomCreated), Toast.LENGTH_SHORT).show()
    }
 
@@ -186,7 +187,3 @@ class MainActivity : AppCompatActivity() {
            .setValue(userId)
    }
 }
-
-
-
-
