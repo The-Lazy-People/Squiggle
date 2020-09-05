@@ -245,6 +245,8 @@ class GameActivity : AppCompatActivity() {
                         for (i in 0 until playersList.size) {
                             if (playersList[i].UID == textObj.UID) {
                                 colorProvider[i] = true
+                                if(host==1)
+                                    updateDrawingValue()
                             }
                         }
                         val adapter = PlayingPlayersAdapter(playersList, colorProvider)
@@ -380,7 +382,7 @@ class GameActivity : AppCompatActivity() {
                 }
                 if (host == 1) {
                     if (playerInfoObj?.UID.toString() != userId) {
-                        updateDrawingValue()
+                        //updateDrawingValue()
                         updateScoreToLocalList(playerInfoObj!!)
                     }
                 } else {
