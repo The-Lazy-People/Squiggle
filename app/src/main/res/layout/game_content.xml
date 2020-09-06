@@ -125,7 +125,7 @@
         android:maxLength="15"
         android:maxLines="1"
         android:singleLine="true"
-        android:text="A_da_r_s_h"
+        android:text=""
         android:textColor="#010101"
         android:textSize="16dp"
         app:autoSizeMaxTextSize="16sp"

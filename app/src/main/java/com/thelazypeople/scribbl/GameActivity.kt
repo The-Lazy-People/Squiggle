@@ -30,6 +30,7 @@ import kotlinx.android.synthetic.main.choose_word.*
 import kotlinx.android.synthetic.main.game_content.*
 import kotlinx.android.synthetic.main.dialog_winners.*
 import kotlinx.android.synthetic.main.layout_header.*
+import kotlin.random.Random
 
 
 /** [GameActivity] is where actual Scribble game commence. */
@@ -61,6 +62,7 @@ class GameActivity : AppCompatActivity() {
     private lateinit var chatAdapter: ChatAdapter
     var reference: String? = ""
     private var otherUserName: String? = ""
+    private var stringDisplay = ""
     private var playersList = mutableListOf<playerInfo>()
     private var chatsDisplay = mutableListOf<ChatText>()
     var playerCount: Long = 0
@@ -209,8 +211,8 @@ class GameActivity : AppCompatActivity() {
         val dialog = Dialog(this)
         dialog.setContentView(R.layout.dialog_winners)
 
-        var winnersList : MutableList<playerInfo> = playersList.toMutableList()
-        winnersList =  winnersList.sortedWith(compareBy { it.score }).reversed().toMutableList()
+        var winnersList: MutableList<playerInfo> = playersList.toMutableList()
+        winnersList = winnersList.sortedWith(compareBy { it.score }).reversed().toMutableList()
 
         val window = dialog.window
         window?.setLayout(
@@ -245,7 +247,7 @@ class GameActivity : AppCompatActivity() {
                         for (i in 0 until playersList.size) {
                             if (playersList[i].UID == textObj.UID) {
                                 colorProvider[i] = true
-                                if(host==1)
+                                if (host == 1)
                                     updateDrawingValue()
                             }
                         }
@@ -423,6 +425,8 @@ class GameActivity : AppCompatActivity() {
             Log.i("CANCEL COUNTDOWN", booleanForCountdownStartedOrNot.toString())
             if (booleanForCountdownStartedOrNot) {
                 timer_xml.text = " "
+                word_xml.text = ""
+                stringDisplay=""
                 countdownTimer.cancel()
                 countdownTimer.onFinish()
             }
@@ -448,6 +452,7 @@ class GameActivity : AppCompatActivity() {
                         if (booleanForCountdownStartedOrNot) {
                             booleanForCountdownStartedOrNot = false
                             timer_xml.text = " "
+                            word_xml.text = " "
                             countdownTimer.cancel()
                         }
                     }
@@ -506,6 +511,11 @@ class GameActivity : AppCompatActivity() {
                 }
 
                 guessingWord = snapshot.value.toString()
+                stringDisplay=""
+                for (i in 0..guessingWord.length-1) {
+                    stringDisplay += '_'
+                }
+                word_xml.text = stringDisplay
             }
         }
         guessingWordRef.addValueEventListener(valueEventListenerForGuessingWord)
@@ -621,6 +631,7 @@ class GameActivity : AppCompatActivity() {
 
             override fun onFinish() {
                 timer_xml.text = " "
+                word_xml.text = " "
                 if (serverHost == 1) {
                     database.child(getString(R.string.rooms)).child(reference.toString())
                         .child(getString(R.string.info))
@@ -631,6 +642,22 @@ class GameActivity : AppCompatActivity() {
             }
 
             override fun onTick(p0: Long) {
+                if (p0 == (timeLimit / 2)) {
+                    val rnds =Random.nextInt(0, guessingWord.length-1)
+                    Log.i("Randomr",rnds.toString())
+                    //var rnds = (0..guessingWord.length-1).random()
+                    //var rnds= Random()
+                       // rnds.nextInt(guessingWord.length-1)
+
+                    stringDisplay=""
+                    for (i in 0..guessingWord.length-1) {
+                        if (i != rnds)
+                            stringDisplay += "_"
+                        else
+                            stringDisplay += guessingWord[rnds]
+                    }
+                    word_xml.text = stringDisplay
+                }
                 timer_xml.text = (p0 / 1000).toString()
             }
         }
