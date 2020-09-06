@@ -44,7 +44,7 @@ class GameActivity : AppCompatActivity() {
     private lateinit var guessingWordRef: DatabaseReference
     private lateinit var paintView: PaintView
     private var roundTillNow = 0
-    var flagtime=0
+    var flagtime = false
     private lateinit var valueEventListenerForWhoesChance: ValueEventListener
     private lateinit var whoseChanceRef: DatabaseReference
     private var indexOfChance = -1
@@ -331,11 +331,6 @@ class GameActivity : AppCompatActivity() {
         database.child(getString(R.string.rooms)).child(reference.toString())
             .child(getString(R.string.Players))
             .child(userId).child(getString(R.string.score)).setValue(curScore)
-        for (i in 0 until playersList.size) {
-            if (userId == playersList[i].UID) {
-                playersList[i].score = curScore
-            }
-        }
     }
 
     private fun updateScoreToLocalList(playerInfoObj: playerInfo) {
@@ -383,14 +378,7 @@ class GameActivity : AppCompatActivity() {
                         cancelCountdownAndNextChance()
                     }
                 }
-                if (host == 1) {
-                    if (playerInfoObj?.UID.toString() != userId) {
-                        //updateDrawingValue()
-                        updateScoreToLocalList(playerInfoObj!!)
-                    }
-                } else {
-                    updateScoreToLocalList(playerInfoObj!!)
-                }
+                updateScoreToLocalList(playerInfoObj!!)
             }
 
             override fun onChildRemoved(snapshot: DataSnapshot) {
@@ -427,8 +415,8 @@ class GameActivity : AppCompatActivity() {
             if (booleanForCountdownStartedOrNot) {
                 timer_xml.text = " "
                 word_xml.text = ""
-                stringDisplay=""
-                flagtime=0
+                stringDisplay = ""
+                flagtime = false
                 countdownTimer.cancel()
                 countdownTimer.onFinish()
             }
@@ -453,10 +441,10 @@ class GameActivity : AppCompatActivity() {
                     } else {
                         if (booleanForCountdownStartedOrNot) {
                             booleanForCountdownStartedOrNot = false
+                            countdownTimer.cancel()
                             timer_xml.text = " "
                             word_xml.text = " "
-                            flagtime=0
-                            countdownTimer.cancel()
+                            flagtime = false
                         }
                     }
                 }
@@ -513,10 +501,14 @@ class GameActivity : AppCompatActivity() {
                     countdown(timeLimit)
                 }
 
-                guessingWord = snapshot.value.toString()
-                stringDisplay=""
-                for (i in 0..guessingWord.length-1) {
-                    stringDisplay += '_'
+                if (host == 0) {
+                    guessingWord = snapshot.value.toString()
+                    stringDisplay = ""
+                    for (i in guessingWord.indices) {
+                        stringDisplay += '_'
+                    }
+                } else {
+                    stringDisplay = getString(R.string.drawNow)
                 }
                 word_xml.text = stringDisplay
             }
@@ -584,7 +576,7 @@ class GameActivity : AppCompatActivity() {
             Log.i("TIMER", "round $roundTillNow")
             /** child of info created named as current round */
             database.child(getString(R.string.rooms)).child(reference.toString())
-                .child(getString(R.string.info)).child("currentRound")
+                .child(getString(R.string.info)).child(getString(R.string.currentRound))
                 .setValue(roundTillNow + 1)
 
         }
@@ -594,14 +586,11 @@ class GameActivity : AppCompatActivity() {
         postRef.push().setValue(Information(10001f, 10001f, 3))
         paintView.isclear = 1
         if (roundTillNow < noOfRounds) {
-            //Log.i("TIMER", "index $indexOfChance")
-            Log.i("TIMER", playersList[indexOfChance].UID)
             database.child(getString(R.string.rooms)).child(reference.toString())
                 .child(getString(R.string.info)).child(getString(R.string.chanceUID))
                 .setValue(playersList[indexOfChance].UID)
             Log.i("TIMER", "UID$roundTillNow - $noOfRounds")
             Log.i("TIMER", timeLimit.toString())
-
         } else {
             gameOverUploadToDatabase()
         }
@@ -611,7 +600,7 @@ class GameActivity : AppCompatActivity() {
     private fun changeCurrentRoundListener() {
 
         RoundChangeRef = database.child(getString(R.string.rooms)).child(reference.toString())
-            .child(getString(R.string.info)).child("currentRound")
+            .child(getString(R.string.info)).child(getString(R.string.currentRound))
 
         valueEventListenerForRoundChange = object : ValueEventListener {
             override fun onCancelled(error: DatabaseError) {}
@@ -635,8 +624,8 @@ class GameActivity : AppCompatActivity() {
             override fun onFinish() {
                 timer_xml.text = " "
                 word_xml.text = " "
-                stringDisplay=""
-                flagtime=0
+                stringDisplay = ""
+                flagtime = false
                 if (serverHost == 1) {
                     database.child(getString(R.string.rooms)).child(reference.toString())
                         .child(getString(R.string.info))
@@ -648,17 +637,17 @@ class GameActivity : AppCompatActivity() {
 
             override fun onTick(p0: Long) {
 
-                if (p0 <= (timeLimit / 2) && flagtime==0) {
-                    flagtime=1
-                    val rnds =Random.nextInt(0, guessingWord.length-1)
-                    Log.i("Randomr",rnds.toString())
+                if (p0 <= (timeLimit / 2) && !flagtime && host == 0) {
+                    flagtime = true
+                    val random = Random.nextInt(0, guessingWord.length - 1)
+                    Log.i("Random", random.toString())
 
-                    stringDisplay=""
-                    for (i in 0..guessingWord.length-1) {
-                        if (i != rnds)
+                    stringDisplay = ""
+                    for (i in guessingWord.indices) {
+                        if (i != random)
                             stringDisplay += "_"
                         else
-                            stringDisplay += guessingWord[rnds]
+                            stringDisplay += guessingWord[random]
                     }
                     word_xml.text = stringDisplay
                 }
@@ -703,6 +692,7 @@ class GameActivity : AppCompatActivity() {
             deleteCurrentRoomIfNoOtherPlayerRemains()
             if (booleanForCountdownStartedOrNot) {
                 countdownTimer.cancel()
+                booleanForCountdownStartedOrNot = false
             }
             booleanForCountdownCancelled = true
         }
@@ -711,6 +701,11 @@ class GameActivity : AppCompatActivity() {
         if (!goToMainActivityBoolean) {
             deleteCurrentPlayer()
             deleteCurrentRoomIfNoOtherPlayerRemains()
+            if (booleanForCountdownStartedOrNot) {
+                countdownTimer.cancel()
+                booleanForCountdownStartedOrNot = false
+            }
+            booleanForCountdownCancelled = true
         }
     }
 

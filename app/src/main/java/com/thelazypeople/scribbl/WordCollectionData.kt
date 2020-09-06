@@ -21,7 +21,6 @@ class WordCollectionData {
         "Cafe",
         "drink",
         "Cricket",
-        "Dog food",
         "Dress",
         "Dancer",
         "Darkness",

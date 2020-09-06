@@ -13,6 +13,7 @@
     <string name="server">server</string>
     <string name="gamestarted">gamestarted</string>
     <string name="rounds">rounds</string>
+    <string name="currentRound">currentRound</string>
     <string name="countdown">countdown</string>
     <string name="chanceChange">chanceChange</string>
     <string name="games">games</string>
@@ -40,6 +41,7 @@
     <string name="game">GAME</string>
     <string name="over">OVER</string>
     <string name="cannotEnterWithOnePlayer">Cannot start game with only one player in the room</string>
+    <string name="drawNow">DRAW NOW!</string>
 
     <!--    Toggle buttons of Navigational Drawers -->
     <string name="navigation_drawer_open">Open navigation drawer</string>
