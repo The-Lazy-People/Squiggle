@@ -44,6 +44,7 @@ class GameActivity : AppCompatActivity() {
     private lateinit var guessingWordRef: DatabaseReference
     private lateinit var paintView: PaintView
     private var roundTillNow = 0
+    var flagtime=0
     private lateinit var valueEventListenerForWhoesChance: ValueEventListener
     private lateinit var whoseChanceRef: DatabaseReference
     private var indexOfChance = -1
@@ -427,6 +428,7 @@ class GameActivity : AppCompatActivity() {
                 timer_xml.text = " "
                 word_xml.text = ""
                 stringDisplay=""
+                flagtime=0
                 countdownTimer.cancel()
                 countdownTimer.onFinish()
             }
@@ -453,6 +455,7 @@ class GameActivity : AppCompatActivity() {
                             booleanForCountdownStartedOrNot = false
                             timer_xml.text = " "
                             word_xml.text = " "
+                            flagtime=0
                             countdownTimer.cancel()
                         }
                     }
@@ -632,6 +635,8 @@ class GameActivity : AppCompatActivity() {
             override fun onFinish() {
                 timer_xml.text = " "
                 word_xml.text = " "
+                stringDisplay=""
+                flagtime=0
                 if (serverHost == 1) {
                     database.child(getString(R.string.rooms)).child(reference.toString())
                         .child(getString(R.string.info))
@@ -642,12 +647,11 @@ class GameActivity : AppCompatActivity() {
             }
 
             override fun onTick(p0: Long) {
-                if (p0 == (timeLimit / 2)) {
+
+                if (p0 <= (timeLimit / 2) && flagtime==0) {
+                    flagtime=1
                     val rnds =Random.nextInt(0, guessingWord.length-1)
                     Log.i("Randomr",rnds.toString())
-                    //var rnds = (0..guessingWord.length-1).random()
-                    //var rnds= Random()
-                       // rnds.nextInt(guessingWord.length-1)
 
                     stringDisplay=""
                     for (i in 0..guessingWord.length-1) {
