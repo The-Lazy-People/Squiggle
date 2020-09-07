@@ -35,6 +35,7 @@ import kotlin.random.Random
 
 /** [GameActivity] is where actual Scribble game commence. */
 class GameActivity : AppCompatActivity() {
+    private var booleanForGameEnd=false
     private var wordGuessedOrNot: Boolean = false
     private lateinit var countdownTimer: CountDownTimer
     var booleanForCountdownStartedOrNot: Boolean = false
@@ -379,6 +380,9 @@ class GameActivity : AppCompatActivity() {
                     }
                 }
                 updateScoreToLocalList(playerInfoObj!!)
+                if(booleanForGameEnd==true){
+                    scoreBoard()
+                }
             }
 
             override fun onChildRemoved(snapshot: DataSnapshot) {
@@ -611,6 +615,7 @@ class GameActivity : AppCompatActivity() {
                     rounds_left.text = snapshot.value.toString()
                 if (snapshot.value.toString() == (noOfRounds + 1).toString()) {
                     scoreBoard()
+                    booleanForGameEnd=true;
                 }
             }
         }
