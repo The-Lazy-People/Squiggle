@@ -32,7 +32,7 @@ class PaintView(context: Context?) : android.view.View(context) {
         brush.color = Color.BLACK
         brush.style = Paint.Style.STROKE
         brush.strokeJoin = Paint.Join.ROUND
-        brush.strokeWidth = 18f
+        brush.strokeWidth = 12f
         params = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
     }
 

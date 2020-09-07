@@ -145,7 +145,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:fontFamily="@font/audiowide"
-            android:text="SCRIBBLE"
+            android:text="SQUIGGLE"
             android:textColor="@color/heading"
             android:textSize="36sp"
             android:textStyle="bold"
