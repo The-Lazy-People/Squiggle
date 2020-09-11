@@ -3,7 +3,7 @@ Android Multiplayer Game of Drawing and Guessing.
 ----
 <kbd><img src="Screenshots/10.png"></kbd>
 ----
-## All about Algorithm-Visualizer
+## All about Squiggle
 Squiggle is an Online Multiplayer Drawing Game. In this you can Guess what your opponent is drawing and answer accordingly. You are awarded points for the correct answers and their is no negative markings for wrong answers. This time you can play online with your friends, other players around the World, or just guess the drawing or draw something for practice!
 Use the Squiggle to draw on the screen while the app tracks and displays the sketch. Become part of the action as you interact with your sketch like charades while your opponents tries to guess as many clues as they can before time is up!
 
